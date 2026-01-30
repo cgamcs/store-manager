@@ -1,26 +1,23 @@
 import express from "express"
+import router from "./router"
+import db from "./config/db"
+
+// Conexion a la base de datos
+async function connectDB() {
+    try {
+        await db.authenticate()
+        db.sync() // Sincroniza los modelos con la base de datos
+        console.log('Base de datos conectada correctamente')
+    } catch (error) {
+        console.log('Error al conectar la base de datos')
+        console.error(error)
+    }
+}
+
+connectDB()
 
 const server  = express()
 
-// Routing
-server.get('/', (req, res) => {
-    res.send("Desde get")
-})
-
-server.post('/', (req, res) => {
-    res.send("Desde post")
-})
-
-server.put('/', (req, res) => {
-    res.send("Desde put")
-})
-
-server.patch('/', (req, res) => {
-    res.send("Desde patch")
-})
-
-server.delete('/', (req, res) => {
-    res.send("Desde delete")
-})
+server.use('/', router)
 
 export default server
