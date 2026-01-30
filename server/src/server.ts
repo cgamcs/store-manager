@@ -23,6 +23,6 @@ const server  = express()
 // Leer datos del formulario
 server.use(express.json())
 
-server.use('/', router)
+server.use('/products', router)
 
 export default server

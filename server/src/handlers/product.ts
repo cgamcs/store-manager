@@ -40,3 +40,22 @@ export const createProduct = async (req: Request, res: Response) => {
     console.error(error)
   }
 }
+
+export const updateProduct = async (req: Request, res: Response) => {
+  try {
+    const id = Number(req.params.id)
+    const product = await Product.findByPk(id)
+
+    if(!product) {
+      return res.status(404).json({message: "Producto no encontrado"})
+    }
+
+    await product.update(req.body)
+    await product.save()
+
+    res.json({data: product})
+  } catch (error) {
+    console.log("Error al actualizar el producto")
+    console.error(error)
+  }
+}
