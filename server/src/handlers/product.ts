@@ -1,6 +1,18 @@
 import { Request, Response } from "express" // Nos da el tipado de Request y Response
 import Product from "../models/Product.model"
 
+export const getProducts = async (req: Request, res: Response) => {
+  try {
+   const products = await Product.findAll({
+    attributes: {exclude: ["availability", "createdAt", "updatedAt"]}
+   })
+    res.json({data: products}) 
+  } catch (error) {
+    console.log("Error al obtener los productos")
+    console.error(error)
+  }
+}
+
 export const createProduct = async (req: Request, res: Response) => {
   try {
     const product = await Product.create(req.body)
