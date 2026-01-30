@@ -1,7 +1,7 @@
-node_modules/
-build/
-dist/
+server/node_modules/
+server/build/
+server/dist/
 
-.env
-.DS_Store
-.cache/
+server/.env
+server/.DS_Store
+server/.cache/
