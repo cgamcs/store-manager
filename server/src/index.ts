@@ -1,5 +1,5 @@
-import { iniciar } from "./server"
+import server from "./server"
 
-console.log("Iniciando servidor...")
-
-iniciar()
+server.listen(4000, () => {
+    console.log(`REST API en el puerto 4000`)
+})
