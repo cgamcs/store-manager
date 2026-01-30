@@ -11,13 +11,17 @@ async function connectDB() {
         console.log(colors.blue.bold('Base de datos conectada correctamente'))
     } catch (error) {
         console.log(colors.red.bold('Error al conectar la base de datos'))
-        console.error(error)
+        console.log(error)
     }
 }
 
 connectDB()
 
+// Instancia de express
 const server  = express()
+
+// Leer datos del formulario
+server.use(express.json())
 
 server.use('/', router)
 

@@ -4,6 +4,7 @@ Dependencias:
  - sequelize: se utiliza para la conexion y manejo de la base de datos PostgreSQL
  - pg y pg-store: se requiere para que sequelize pueda interactuar con PostgreSQL
  - express: framework para crear el servidor y manejar las rutas
+ - express-validator: para validar y sanitizar las entradas de los usuarios en las rutas
  - sequelize-typescript: permite usar decoradores y otras caracteristicas de TypeScript con Sequelize
  - dotenv: para manejar variables de entorno y configuraciones sensibles
  - colors: para mejorar la visualizacion de mensajes en la consola
