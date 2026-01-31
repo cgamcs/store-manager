@@ -8,7 +8,7 @@ async function connectDB() {
     try {
         await db.authenticate()
         db.sync() // Sincroniza los modelos con la base de datos
-        console.log(colors.blue.bold('Base de datos conectada correctamente'))
+        // console.log(colors.blue.bold('Base de datos conectada correctamente'))
     } catch (error) {
         console.log(colors.red.bold('Error al conectar la base de datos'))
         console.log(error)
@@ -24,5 +24,9 @@ const server  = express()
 server.use(express.json())
 
 server.use('/products', router)
+
+server.get('/', (req, res) => {
+    res.json({message: "Desde server.ts"})
+})
 
 export default server
