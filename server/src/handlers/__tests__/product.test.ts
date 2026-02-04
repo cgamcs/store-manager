@@ -72,7 +72,7 @@ describe("GET /products/:id", () => {
   })
 
   it("should check a valid ID in the URL", async () => {
-    const res = await request(server).get("/products/hola")
+    const res = await request(server).get("/products/not-valid")
 
     expect(res.status).toBe(400)
     expect(res.body).toHaveProperty("errors")
@@ -90,7 +90,7 @@ describe("GET /products/:id", () => {
 
 describe("PUT /products/:id", () => {
   it("should check a valid ID in the URL", async () => {
-    const res = await request(server).put("/products/hola").send({
+    const res = await request(server).put("/products/not-valid").send({
       name: "Teclado - Testing",
       price: 150,
       availability: false
@@ -156,6 +156,32 @@ describe("PUT /products/:id", () => {
       price: 150,
       availability: false
     })
+
+    expect(res.status).toBe(200)
+    expect(res.body).toHaveProperty("data")
+  })
+})
+
+describe("DELETE /products/:id", () => {
+  it("should check valid ID", async () => {
+    const res = await request(server).delete("/products/not-valid")
+
+    expect(res.status).toBe(400)
+    expect(res.body).toHaveProperty("errors")
+    expect(res.body.errors[0].msg).toBe("El ID debe ser un número entero")
+  })
+
+  it("should return a 404 response for a non-exist product", async () => {
+    const productId = 2000
+    const res = await request(server).delete(`/products/${productId}`)
+
+    expect(res.status).toBe(404)
+    expect(res.body).toHaveProperty("error")
+    expect(res.body.error).toBe("Producto no encontrado")
+  })
+
+  it("should delete a product", async () => {
+    const res = await request(server).delete("/products/1")
 
     expect(res.status).toBe(200)
     expect(res.body).toHaveProperty("data")
