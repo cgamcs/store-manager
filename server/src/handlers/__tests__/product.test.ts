@@ -3,7 +3,7 @@ import server from "../../server"
 
 describe("POST /products", () => {
   it("should fail when required fields are missing", async () => {
-    const res = await request(server).post('/products').send({})
+    const res = await request(server).post("/products").send({})
 
     expect(res.status).toBe(400)
     expect(res.body).toHaveProperty("errors")
@@ -11,9 +11,9 @@ describe("POST /products", () => {
   })
 
   it("should fail when price is equal or lower than 0", async () => {
-    const res = await request(server).post('/products').send({
-      "name": "Laptop - Testing",
-      "price": 0
+    const res = await request(server).post("/products").send({
+      name: "Laptop - Testing",
+      price: 0,
     })
 
     expect(res.status).toBe(400)
@@ -22,9 +22,9 @@ describe("POST /products", () => {
   })
 
   it("should fail when price is not a number and equal or lower than 0", async () => {
-    const res = await request(server).post('/products').send({
-      "name": "Laptop - Testing",
-      "price": "hola"
+    const res = await request(server).post("/products").send({
+      name: "Laptop - Testing",
+      price: "hola",
     })
 
     expect(res.status).toBe(400)
@@ -33,9 +33,9 @@ describe("POST /products", () => {
   })
 
   it("should create a new product", async () => {
-    const res = await request(server).post('/products').send({
-      "name": "Laptop - Testing",
-      "price": 5000
+    const res = await request(server).post("/products").send({
+      name: "Laptop - Testing",
+      price: 5000,
     })
 
     expect(res.status).toBe(201)
@@ -45,13 +45,13 @@ describe("POST /products", () => {
 
 describe("GET /products", () => {
   it("should check if /products endpoint is working", async () => {
-    const res = await request(server).get('/products')
+    const res = await request(server).get("/products")
     expect(res.status).toBe(200)
     expect(res.status).not.toBe(404)
   })
 
   it("should retrieve all products", async () => {
-    const res = await request(server).get('/products')
+    const res = await request(server).get("/products")
 
     expect(res.status).toBe(200)
     expect(res.body).toHaveProperty("data")
@@ -68,11 +68,11 @@ describe("GET /products/:id", () => {
     const res = await request(server).get(`/products/${productId}`)
 
     expect(res.status).toBe(404)
-    expect(res.body.message).toBe("Producto no encontrado")
+    expect(res.body.error).toBe("Producto no encontrado")
   })
 
   it("should check a valid ID in the URL", async () => {
-    const res = await request(server).get('/products/hola')
+    const res = await request(server).get("/products/hola")
 
     expect(res.status).toBe(400)
     expect(res.body).toHaveProperty("errors")
@@ -81,7 +81,81 @@ describe("GET /products/:id", () => {
   })
 
   it("should get a JSON response for a single product", async () => {
-    const res = await request(server).get('/products/1')
+    const res = await request(server).get("/products/1")
+
+    expect(res.status).toBe(200)
+    expect(res.body).toHaveProperty("data")
+  })
+})
+
+describe("PUT /products/:id", () => {
+  it("should check a valid ID in the URL", async () => {
+    const res = await request(server).put("/products/hola").send({
+      name: "Teclado - Testing",
+      price: 150,
+      availability: false
+    })
+
+    expect(res.status).toBe(400)
+    expect(res.body).toHaveProperty("errors")
+    expect(res.body.errors).toHaveLength(1)
+    expect(res.body.errors[0].msg).toBe("El ID debe ser un número entero")
+  })
+
+  it("should display validation error messages when updating a product", async () => {
+    const res = await request(server).put("/products/1").send({})
+
+    expect(res.status).toBe(400)
+    expect(res.body).toHaveProperty("errors")
+    expect(res.body.errors).toBeTruthy()
+    expect(res.body.errors).toHaveLength(5)
+  })
+
+  it("should validate when price is greater than 0", async () => {
+    const res = await request(server).put("/products/1").send({
+      name: "Teclado - Testing",
+      price: -150,
+      availability: false
+    })
+
+    expect(res.status).toBe(400)
+    expect(res.body).toHaveProperty("errors")
+    expect(res.body.errors).toBeTruthy()
+    expect(res.body.errors[0].msg).toBe("El precio debe ser mayor a 0")
+  })
+
+  it("should validate when price is'nt a number", async () => {
+    const res = await request(server).put("/products/1").send({
+      name: "Teclado - Testing",
+      price: "hola",
+      availability: false
+    })
+
+    expect(res.status).toBe(400)
+    expect(res.body).toHaveProperty("errors")
+    expect(res.body.errors).toBeTruthy()
+    expect(res.body.errors[0].msg).toBe("El precio debe ser un número")
+    expect(res.body.errors).toHaveLength(2)
+  })
+
+  it("should return a 404 response for a non-exist product", async () => {
+    const productId = 2000
+    const res = await request(server).put(`/products/${productId}`).send({
+      name: "Teclado - Testing",
+      price: 150,
+      availability: false
+    })
+
+    expect(res.status).toBe(404)
+    expect(res.body.error).toBe("Producto no encontrado")
+  })
+
+  it("should get a JSON response when update a product", async () => {
+    const res = await request(server).put("/products/1").send({
+      name: "Teclado - Testing",
+      price: 150,
+      availability: false
+    })
 
     expect(res.status).toBe(200)
     expect(res.body).toHaveProperty("data")
