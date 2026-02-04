@@ -1,5 +1,7 @@
 import express from "express"
 import colors from "colors"
+import swaggerUi from "swagger-ui-express"
+import swaggerSpec from "./config/swagger"
 import router from "./router"
 import db from "./config/db"
 
@@ -25,8 +27,7 @@ server.use(express.json())
 
 server.use('/products', router)
 
-server.get('/', (req, res) => {
-    res.json({message: "Desde server.ts"})
-})
+// Docs
+server.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 export default server

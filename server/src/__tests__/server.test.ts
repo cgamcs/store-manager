@@ -1,15 +1,5 @@
-import request from "supertest"
-import server, { connectDB } from "../server"
+import { connectDB } from "../server"
 import db from "../config/db"
-
-describe("GET /", () => {
-  it("should return a JSON message", async () => {
-    const res = await request(server).get("/")
-
-    expect(res.status).toBe(200)
-    expect(res.body.message).toBe("Desde server.ts")
-  })
-})
 
 jest.mock('../config/db') // simula la conexion a la BD
 
