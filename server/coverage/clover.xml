@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1770240452705" clover="3.2.0">
-  <project timestamp="1770240452705" name="All files">
-    <metrics statements="101" coveredstatements="87" conditionals="10" coveredconditionals="10" methods="11" coveredmethods="11" elements="122" coveredelements="108" complexity="0" loc="101" ncloc="101" packages="5" files="6" classes="6"/>
+<coverage generated="1770241407007" clover="3.2.0">
+  <project timestamp="1770241407007" name="All files">
+    <metrics statements="102" coveredstatements="90" conditionals="10" coveredconditionals="10" methods="11" coveredmethods="11" elements="123" coveredelements="111" complexity="0" loc="102" ncloc="102" packages="5" files="6" classes="6"/>
     <package name="src">
-      <metrics statements="30" coveredstatements="28" conditionals="0" coveredconditionals="0" methods="4" coveredmethods="4"/>
+      <metrics statements="31" coveredstatements="31" conditionals="0" coveredconditionals="0" methods="4" coveredmethods="4"/>
       <file name="router.ts" path="/Users/cgamcs/Desktop/01-Proyectos/store-manager/server/src/router.ts">
         <metrics statements="14" coveredstatements="14" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
         <line num="1" count="2" type="stmt"/>
@@ -22,16 +22,17 @@
         <line num="56" count="2" type="stmt"/>
       </file>
       <file name="server.ts" path="/Users/cgamcs/Desktop/01-Proyectos/store-manager/server/src/server.ts">
-        <metrics statements="16" coveredstatements="14" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
+        <metrics statements="17" coveredstatements="17" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
         <line num="1" count="2" type="stmt"/>
         <line num="2" count="2" type="stmt"/>
         <line num="3" count="2" type="stmt"/>
         <line num="4" count="2" type="stmt"/>
-        <line num="8" count="2" type="stmt"/>
-        <line num="9" count="2" type="stmt"/>
-        <line num="10" count="1" type="stmt"/>
-        <line num="13" count="0" type="stmt"/>
-        <line num="14" count="0" type="stmt"/>
+        <line num="7" count="2" type="stmt"/>
+        <line num="8" count="3" type="stmt"/>
+        <line num="9" count="3" type="stmt"/>
+        <line num="10" count="2" type="stmt"/>
+        <line num="13" count="1" type="stmt"/>
+        <line num="14" count="1" type="stmt"/>
         <line num="18" count="2" type="stmt"/>
         <line num="21" count="2" type="stmt"/>
         <line num="24" count="2" type="stmt"/>
@@ -128,12 +129,12 @@
       <metrics statements="6" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
       <file name="Product.model.ts" path="/Users/cgamcs/Desktop/01-Proyectos/store-manager/server/src/models/Product.model.ts">
         <metrics statements="6" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-        <line num="1" count="2" type="stmt"/>
-        <line num="7" count="2" type="stmt"/>
-        <line num="11" count="2" type="stmt"/>
-        <line num="16" count="2" type="stmt"/>
-        <line num="22" count="2" type="stmt"/>
-        <line num="25" count="2" type="stmt"/>
+        <line num="1" count="3" type="stmt"/>
+        <line num="7" count="3" type="stmt"/>
+        <line num="11" count="3" type="stmt"/>
+        <line num="16" count="3" type="stmt"/>
+        <line num="22" count="3" type="stmt"/>
+        <line num="25" count="3" type="stmt"/>
       </file>
     </package>
   </project>
