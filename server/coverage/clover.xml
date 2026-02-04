@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1770239181109" clover="3.2.0">
-  <project timestamp="1770239181109" name="All files">
-    <metrics statements="101" coveredstatements="79" conditionals="10" coveredconditionals="8" methods="11" coveredmethods="10" elements="122" coveredelements="97" complexity="0" loc="101" ncloc="101" packages="5" files="6" classes="6"/>
+<coverage generated="1770240452705" clover="3.2.0">
+  <project timestamp="1770240452705" name="All files">
+    <metrics statements="101" coveredstatements="87" conditionals="10" coveredconditionals="10" methods="11" coveredmethods="11" elements="122" coveredelements="108" complexity="0" loc="101" ncloc="101" packages="5" files="6" classes="6"/>
     <package name="src">
       <metrics statements="30" coveredstatements="28" conditionals="0" coveredconditionals="0" methods="4" coveredmethods="4"/>
       <file name="router.ts" path="/Users/cgamcs/Desktop/01-Proyectos/store-manager/server/src/router.ts">
@@ -53,9 +53,9 @@
       </file>
     </package>
     <package name="src.handlers">
-      <metrics statements="54" coveredstatements="34" conditionals="8" coveredconditionals="6" methods="6" coveredmethods="5"/>
+      <metrics statements="54" coveredstatements="42" conditionals="8" coveredconditionals="8" methods="6" coveredmethods="6"/>
       <file name="product.ts" path="/Users/cgamcs/Desktop/01-Proyectos/store-manager/server/src/handlers/product.ts">
-        <metrics statements="54" coveredstatements="34" conditionals="8" coveredconditionals="6" methods="6" coveredmethods="5"/>
+        <metrics statements="54" coveredstatements="42" conditionals="8" coveredconditionals="8" methods="6" coveredmethods="6"/>
         <line num="2" count="2" type="stmt"/>
         <line num="4" count="2" type="stmt"/>
         <line num="5" count="2" type="stmt"/>
@@ -90,14 +90,14 @@
         <line num="58" count="0" type="stmt"/>
         <line num="59" count="0" type="stmt"/>
         <line num="63" count="2" type="stmt"/>
-        <line num="64" count="0" type="stmt"/>
-        <line num="65" count="0" type="stmt"/>
-        <line num="66" count="0" type="stmt"/>
-        <line num="68" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="69" count="0" type="stmt"/>
-        <line num="73" count="0" type="stmt"/>
-        <line num="74" count="0" type="stmt"/>
-        <line num="76" count="0" type="stmt"/>
+        <line num="64" count="2" type="stmt"/>
+        <line num="65" count="2" type="stmt"/>
+        <line num="66" count="2" type="stmt"/>
+        <line num="68" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="69" count="1" type="stmt"/>
+        <line num="73" count="1" type="stmt"/>
+        <line num="74" count="1" type="stmt"/>
+        <line num="76" count="1" type="stmt"/>
         <line num="78" count="0" type="stmt"/>
         <line num="79" count="0" type="stmt"/>
         <line num="83" count="2" type="stmt"/>
@@ -118,10 +118,10 @@
         <metrics statements="6" coveredstatements="6" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
         <line num="2" count="2" type="stmt"/>
         <line num="4" count="2" type="stmt"/>
-        <line num="5" count="16" type="stmt"/>
-        <line num="6" count="16" type="cond" truecount="2" falsecount="0"/>
-        <line num="7" count="9" type="stmt"/>
-        <line num="10" count="7" type="stmt"/>
+        <line num="5" count="19" type="stmt"/>
+        <line num="6" count="19" type="cond" truecount="2" falsecount="0"/>
+        <line num="7" count="10" type="stmt"/>
+        <line num="10" count="9" type="stmt"/>
       </file>
     </package>
     <package name="src.models">

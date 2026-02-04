@@ -162,6 +162,34 @@ describe("PUT /products/:id", () => {
   })
 })
 
+describe("PATCH /products/:id", () => {
+  it("should check valid ID", async () => {
+    const res = await request(server).patch("/products/not-valid")
+
+    expect(res.status).toBe(400)
+    expect(res.body).toHaveProperty("errors")
+    expect(res.body.errors[0].msg).toBe("El ID debe ser un número entero")
+  })
+
+  it("shoul return a 404 response for a non-exist product", async () => {
+    const productId = 2000
+    const res = await request(server).patch(`/products/${productId}`)
+
+    expect(res.status).toBe(404)
+    expect(res.body).toHaveProperty("error")
+    expect(res.body.error).toBe("Producto no encontrado")
+    expect(res.status).not.toBe(400)
+    expect(res.body).not.toHaveProperty("data")
+  })
+
+  it("should get a JSON response when patch a product", async () => {
+    const res = await request(server).patch("/products/1").send({})
+
+    expect(res.status).toBe(200)
+    expect(res.body).toHaveProperty("data")
+  })
+})
+
 describe("DELETE /products/:id", () => {
   it("should check valid ID", async () => {
     const res = await request(server).delete("/products/not-valid")
