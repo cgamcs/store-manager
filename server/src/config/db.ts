@@ -1,6 +1,6 @@
 import { Sequelize } from "sequelize-typescript"
 import dotenv from "dotenv"
-dotenv.config()
+dotenv.config({ quiet: true })
 
 const db = new Sequelize(process.env.DATABASE_URL!, {
   models: [__dirname + '/../models/**.ts'],
