@@ -41,8 +41,16 @@ router.put('/:id',
   updateProduct
 )
 
-router.patch('/:id', updateAvailability)
+router.patch('/:id',
+  param('id').isInt().withMessage('El ID debe ser un número entero'),
+  handleInputErrors,
+  updateAvailability
+)
 
-router.delete('/:id', deleteProduct)
+router.delete('/:id',
+  param('id').isInt().withMessage('El ID debe ser un número entero'),
+  handleInputErrors,
+  deleteProduct
+)
 
 export default router
