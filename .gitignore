@@ -1,3 +1,6 @@
+.DS_Store
+.cache/
+
 # fronted
 client/node_modules/
 client/build/
