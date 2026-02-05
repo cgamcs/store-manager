@@ -1,3 +1,13 @@
+# fronted
+client/node_modules/
+client/build/
+client/dist/
+
+client/.env
+client/.DS_Store
+client/.cache/
+
+# backend
 server/node_modules/
 server/build/
 server/dist/
