@@ -3,9 +3,15 @@ import { Outlet } from "react-router-dom"
 function Layout() {
   return (
     <>
-      <div>Layout</div>
+      <header className="bg-azul-claro">
+        <div className="mx-auto max-w-6xl py-10">
+          <h1 className="text-4xl font-extrabold">Administrador de Productos</h1>
+        </div>
+      </header>
 
-      <Outlet />
+      <main className="mt-10 mx-auto max-w-6xl p-10 bg-azul-medio rounded-lg shadow-sm">
+        <Outlet />
+      </main>
     </>
   )
 }
