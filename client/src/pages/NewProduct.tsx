@@ -1,16 +1,13 @@
-import { Link, Form, useActionData, redirect, type ActionFunctionArgs, useNavigation } from "react-router-dom"
-import ErrorMessage from "../components/ErrorMessage"
+import { Link, Form, redirect, type ActionFunctionArgs, useNavigation } from "react-router-dom"
+import { toast } from "sonner"
 import { addProduct } from "../services/ProductService"
 
 export async function action({request} : ActionFunctionArgs) {
   const data = Object.fromEntries(await request.formData())
-  
-  let error = ''
+
   if(Object.values(data).includes('')) {
-    error = "Todos los campos son obligatorios"
-  }
-  if(error.length) {
-    return error
+    toast.error("Todos los campos son obligatorios")
+    return
   }
 
   await addProduct(data)
@@ -22,7 +19,6 @@ function NewProduct() {
   const navigation = useNavigation();
   
   const isSubmitting = navigation.state === "submitting"
-  const error = useActionData() as string
 
   return (
     <>
@@ -35,8 +31,6 @@ function NewProduct() {
           Volver a Productos
         </Link>
       </div>
-
-      {error && <ErrorMessage>{error}</ErrorMessage>}
 
       <Form
         className="mt-10"

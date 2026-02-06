@@ -1,6 +1,7 @@
 import { safeParse } from "valibot"
 import axios from "axios"
 import { DraftProductSchema } from "../types"
+import { toast } from "sonner"
 
 type ProductData = {
   [k: string]: FormDataEntryValue
@@ -12,13 +13,15 @@ export async function addProduct(data: ProductData) {
       name: data.name,
       price: +data.price
     })
-
+    
     if(result.success) {
       const url = `${import.meta.env.VITE_API_URL}/products`
       await axios.post(url, {
         name: result.output.name,
         price: result.output.price
       })
+
+      toast.success("Producto creado con éxito")
     } else {
       throw new Error('Datos no validos')
     }
