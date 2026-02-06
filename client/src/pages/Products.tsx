@@ -25,7 +25,7 @@ function Products() {
 
       <div className="rounded-md overflow-hidden mt-10">
         <table className="w-full table-auto">
-          <thead className="bg-azul-claro">
+          <thead className="bg-azul-claro font-bold">
             <tr>
               <td className="p-2">Producto</td>
               <td className="p-2">Precio</td>
