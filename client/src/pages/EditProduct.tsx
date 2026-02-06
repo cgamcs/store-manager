@@ -1,6 +1,19 @@
-import { Link, Form, redirect, type ActionFunctionArgs, useNavigation, useLocation } from "react-router-dom"
+import { Link, Form, redirect, type ActionFunctionArgs, useNavigation, type LoaderFunctionArgs, useLoaderData } from "react-router-dom"
 import { toast } from "sonner"
-import { addProduct } from "../services/ProductService"
+import { addProduct, getProductById } from "../services/ProductService"
+import type { Product } from "@/types"
+
+export async function loader({params} : LoaderFunctionArgs) {
+  if(params.id !== undefined) {
+    const product = await getProductById(+params.id)
+
+    if(!product) {
+      return redirect('/')
+    }
+
+    return product
+  }
+}
 
 export async function action({request} : ActionFunctionArgs) {
   const data = Object.fromEntries(await request.formData())
@@ -17,7 +30,7 @@ export async function action({request} : ActionFunctionArgs) {
 
 function EditProduct() {
   const navigation = useNavigation()
-  const { state } = useLocation()
+  const product = useLoaderData() as Product
   
   const isSubmitting = navigation.state === "submitting"
 
@@ -44,7 +57,7 @@ function EditProduct() {
             className="mt-2 block w-full bg-[#10131e] focus-visible:outline-0 p-3 rounded-md"
             placeholder="Nombre del Producto"
             name="name"
-            defaultValue={state.product.name}
+            defaultValue={product.name}
           />
         </div>
         <div className="mb-4">
@@ -56,7 +69,7 @@ function EditProduct() {
             className="mt-2 block w-full bg-[#10131e] focus-visible:outline-0 p-3 rounded-md"
             placeholder="Precio del Producto"
             name="price"
-            defaultValue={state.product.price}
+            defaultValue={product.price}
           />
         </div>
         <input
