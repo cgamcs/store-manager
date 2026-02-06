@@ -17,7 +17,7 @@ export const getProductById = async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id)
     const product = await Product.findByPk(id, {
-      attributes: {exclude: ["availability","createdAt", "updatedAt"]}
+      attributes: {exclude: ["createdAt", "updatedAt"]}
     })
 
     if(!product) {
