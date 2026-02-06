@@ -1,4 +1,4 @@
-import { Link, Form, useActionData, type ActionFunctionArgs } from "react-router-dom"
+import { Link, Form, useActionData, redirect, type ActionFunctionArgs, useNavigation } from "react-router-dom"
 import ErrorMessage from "../components/ErrorMessage"
 import { addProduct } from "../services/ProductService"
 
@@ -13,12 +13,15 @@ export async function action({request} : ActionFunctionArgs) {
     return error
   }
 
-  addProduct(data)
+  await addProduct(data)
   
-  return {}
+  return redirect('/')
 }
 
 function NewProduct() {
+  const navigation = useNavigation();
+  
+  const isSubmitting = navigation.state === "submitting"
   const error = useActionData() as string
 
   return (
@@ -61,8 +64,9 @@ function NewProduct() {
         </div>
         <input
           type="submit"
-          className="mt-5 w-full bg-azul-claro hover:bg-azul-claro/80 p-2 font-bold text-lg cursor-pointer rounded-md"
           value="Registrar Producto"
+          className={`mt-5 w-full bg-azul-claro hover:bg-azul-claro/80 p-2 font-bold text-lg  rounded-md ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+          disabled={isSubmitting}
         />
       </Form>
     </>
