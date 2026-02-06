@@ -51,7 +51,9 @@ function NewProduct() {
         <div className="mb-4">
           <label htmlFor="price">Precio:</label>
           <input
-            type="text"
+            type="number"
+            step="0.01"
+            min="0"
             className="mt-2 block w-full bg-[#10131e] focus-visible:outline-0 p-3 rounded-md"
             placeholder="Precio del Producto"
             name="price"
