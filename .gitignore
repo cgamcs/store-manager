@@ -1,20 +1,11 @@
 .DS_Store
 .cache/
 
-# fronted
-client/node_modules/
-client/build/
-client/dist/
+**/node_modules/
+**/build/
+**/dist/
+**/coverage/
 
-client/.env
-client/.DS_Store
-client/.cache/
-
-# backend
-server/node_modules/
-server/build/
-server/dist/
-
-server/.env
-server/.DS_Store
-server/.cache/
+**/.env
+**/.DS_Store
+**/.cache/

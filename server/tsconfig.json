@@ -14,5 +14,6 @@
         "module": "nodenext",
         "isolatedModules": true
     },
-    "include": ["src/**/*.ts"]
+    "include": ["src/**/*.ts"],
+    "exclue": ["src/**/*.test.ts"]
 }
