@@ -83,10 +83,7 @@ export async function updateProduct(data: ProductData, id: Product['id']) {
 export async function deleteProduct(id: Product['id']) {
   try {
     const url = `${import.meta.env.VITE_API_URL}/products/${id}`
-    const result = await axios.delete(url)
-    if(result.status) {
-      toast.success("Producto eliminado correctamente")
-    }
+    await axios.delete(url)
   } catch (error) {
     console.error(error)
   }
