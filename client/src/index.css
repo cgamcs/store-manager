@@ -10,11 +10,10 @@
   --color-azul-medio: #32435e;
   --color-letra-principal: #F9FAFB;
   --color-letra-secundaria: #B8B9B9;
-  --color-oscuro-primario: #0B0D14;
-  --color-oscuro-secundario: #0F1219;
-  --color-claro-primario: #161922;
-  --color-claro-secundario: #1A1D26;
-  --color-borde: #272B35;
+  --color-oscuro-primario: hsl(224, 28%, 6%);
+  --color-oscuro-secundario: hsl(224, 25%, 8%);
+  --color-claro-primario: hsl(224, 18%, 14%);
+  --color-borde: hsl(224, 15%, 18%);
 }
 
 .notificacion {

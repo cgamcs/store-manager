@@ -22,7 +22,7 @@ function ProductDetails({product}: ProductDetailsType) {
 
   return (
     <>
-      <tr className="bg-azul-oscuro">
+      <tr className="bg-claro-primario/50 border-b border-borde">
         <td className="p-3">{product.name}</td>
         <td className="p-3">{formatCurrency(product.price)}</td>
         <td className="p-3">
@@ -31,7 +31,7 @@ function ProductDetails({product}: ProductDetailsType) {
               type="submit"
               name="id"
               value={product.id}
-              className={`${isAvailable ? '' : 'text-red-500'} rounded-sm p-2 text-xs uppercase font-bold w-full border border-azul-medio cursor-pointer`}
+              className={`${isAvailable ? '' : 'text-red-500'} rounded-sm p-2 text-xs uppercase font-bold w-full border border-borde cursor-pointer`}
             >
               {isAvailable ? "Disponible" : "No Disponible"}
             </button>

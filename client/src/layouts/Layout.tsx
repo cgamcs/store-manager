@@ -16,11 +16,13 @@ function Layout() {
         }}
       />
 
-      <SideBar />
+      <div className="flex">
+        <SideBar />
 
-      <main className="mt-10 mx-auto max-w-6xl p-10 bg-oscuro-secundario rounded-lg shadow-sm">
-        <Outlet />
-      </main>
+        <main className="mx-auto w-full m-2 py-6 px-5 bg-oscuro-secundario rounded-2xl shadow-2xl">
+          <Outlet />
+        </main>
+      </div>
     </>
   );
 }

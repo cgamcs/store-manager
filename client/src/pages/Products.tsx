@@ -1,7 +1,8 @@
-import { Link, useLoaderData, type ActionFunctionArgs } from "react-router-dom"
+import { useLoaderData, type ActionFunctionArgs } from "react-router-dom"
 import { getProducts, updateAvailability } from "@/services/ProductService"
 import type { Product } from "@/types"
 import ProductDetails from "@/components/ProductDetails"
+import Header from "@/components/Header"
 
 export async function loader() {
 
@@ -20,25 +21,16 @@ function Products() {
 
   return (
     <>
-    
-      <div className="flex justify-between">
-        <h2 className="text-2xl text-letra-principal font-bold">Productos</h2>
-        <Link
-          to="productos/nuevo"
-          className="bg-azul-claro font-bold p-4 rounded-md hover:bg-azul-claro/80"
-        >
-          Agregar Producto
-        </Link>
-      </div>
+      <Header />
 
-      <div className="rounded-md overflow-hidden mt-10">
+      <div className="rounded-md overflow-hidden mt-10 border border-borde">
         <table className="w-full table-auto">
-          <thead className="bg-azul-claro font-bold">
+          <thead className="bg-claro-primario text-gray-300 font-bold border-b border-borde">
             <tr>
-              <td className="p-2">Producto</td>
-              <td className="p-2">Precio</td>
-              <td className="p-2">Disponibilidad</td>
-              <td className="p-2">Acciones</td>
+              <td className="p-3">Producto</td>
+              <td className="p-3">Precio</td>
+              <td className="p-3">Disponibilidad</td>
+              <td className="p-3">Acciones</td>
             </tr>
           </thead>
           <tbody>
