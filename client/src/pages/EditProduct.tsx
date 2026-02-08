@@ -2,6 +2,7 @@ import { Link, Form, redirect, type ActionFunctionArgs, useNavigation, type Load
 import { toast } from "sonner"
 import { getProductById, updateProduct } from "../services/ProductService"
 import type { Product } from "@/types"
+import ProductForm from "@/components/ProductForm"
 
 const availabilityOptions = [
   { name: "Disponible", value: true },
@@ -56,28 +57,10 @@ function EditProduct() {
       </div>
 
       <Form className="mt-10" method="POST">
-        <div className="mb-4">
-          <label htmlFor="name">Nombre Producto:</label>
-          <input
-            type="text"
-            className="mt-2 block w-full bg-[#10131e] focus-visible:outline-0 p-3 rounded-md"
-            placeholder="Nombre del Producto"
-            name="name"
-            defaultValue={product.name}
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="price">Precio:</label>
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            className="mt-2 block w-full bg-[#10131e] focus-visible:outline-0 p-3 rounded-md"
-            placeholder="Precio del Producto"
-            name="price"
-            defaultValue={product.price}
-          />
-        </div>
+        <ProductForm
+          product={product}
+        />
+
         <div className="mb-4">
           <label htmlFor="availability">
             Disponibilidad:

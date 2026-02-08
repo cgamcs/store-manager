@@ -1,6 +1,7 @@
 import { Link, Form, redirect, type ActionFunctionArgs, useNavigation } from "react-router-dom"
 import { toast } from "sonner"
 import { addProduct } from "../services/ProductService"
+import ProductForm from "@/components/ProductForm"
 
 export async function action({request} : ActionFunctionArgs) {
   const data = Object.fromEntries(await request.formData())
@@ -36,26 +37,8 @@ function NewProduct() {
         className="mt-10"
         method="POST"
       >
-        <div className="mb-4">
-          <label htmlFor="name">Nombre Producto:</label>
-          <input
-            type="text"
-            className="mt-2 block w-full bg-[#10131e] focus-visible:outline-0 p-3 rounded-md"
-            placeholder="Nombre del Producto"
-            name="name"
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="price">Precio:</label>
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            className="mt-2 block w-full bg-[#10131e] focus-visible:outline-0 p-3 rounded-md"
-            placeholder="Precio del Producto"
-            name="price"
-          />
-        </div>
+        <ProductForm />
+
         <input
           type="submit"
           value="Registrar Producto"
