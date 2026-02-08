@@ -20,6 +20,7 @@ function Products() {
 
   return (
     <>
+    
       <div className="flex justify-between">
         <h2 className="text-2xl text-letra-principal font-bold">Productos</h2>
         <Link
