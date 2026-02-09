@@ -1,6 +1,6 @@
 import { type ActionFunctionArgs, redirect, Form } from "react-router-dom"
 import type { Product } from "@/types"
-import { Ellipsis, Trash2 } from "lucide-react"
+import { Ellipsis } from "lucide-react"
 import {
   Popover,
   PopoverContent,
@@ -9,12 +9,14 @@ import {
 import { formatCurrency } from "@/utils"
 import { deleteProduct } from "@/services/ProductService"
 import EditProduct from "@/pages/EditProduct"
+import { DeleteProductModal } from '@/components/DeleteProductModal'
 
 type ProductDetailsType = {
   product: Product
 }
 
 export async function action({params} : ActionFunctionArgs) {
+  console.log(params.id)
   if(params.id !== undefined) {
     await deleteProduct(+params.id)
 
@@ -43,7 +45,7 @@ function ProductDetails({product}: ProductDetailsType) {
               <div className="flex flex-col">
                 <EditProduct product={product} />
 
-                <Form
+                {/* <Form
                   className="w-full"
                   method="POST"
                   action={`productos/${product.id}/eliminar`}
@@ -56,7 +58,8 @@ function ProductDetails({product}: ProductDetailsType) {
                       value="Eliminar"
                     />
                   </div>
-                </Form>
+                </Form> */}
+                <DeleteProductModal product={product} />
               </div>
             </PopoverContent>
           </Popover>
