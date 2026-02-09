@@ -1,12 +1,28 @@
-import { useLoaderData } from "react-router-dom"
-import { getProducts } from "@/services/ProductService"
+import { redirect, useLoaderData, type ActionFunctionArgs } from "react-router-dom"
+import { addProduct, getProducts } from "@/services/ProductService"
 import type { Product } from "@/types"
 import ProductDetails from "@/components/ProductDetails"
 import Header from "@/components/Header"
 import SummaryInventary from "@/components/SummaryInventary"
+import { toast } from "sonner"
+import { DialogClose } from "@/components/ui/dialog"
 
 export async function loader() {
   return await getProducts()
+}
+
+export async function action({ request }: ActionFunctionArgs) {
+  console.log(request)
+  const data = Object.fromEntries(await request.formData())
+
+  if (Object.values(data).includes("")) {
+    toast.error("Todos los campos son obligatorios")
+    return
+  }
+
+  await addProduct(data)
+
+  return redirect('/')
 }
 
 function Products() {

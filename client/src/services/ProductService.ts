@@ -12,9 +12,9 @@ export async function addProduct(data: ProductData) {
     const result = safeParse(DraftProductSchema, {
       name: data.name,
       price: +data.price,
-      category: data.name,
-      stock: +data.price,
-      status: data.name
+      category: data.category,
+      stock: +data.stock,
+      status: data.status
     })
     
     if(result.success) {
