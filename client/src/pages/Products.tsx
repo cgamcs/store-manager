@@ -5,7 +5,6 @@ import ProductDetails from "@/components/ProductDetails"
 import Header from "@/components/Header"
 import SummaryInventary from "@/components/SummaryInventary"
 import { toast } from "sonner"
-import { DialogClose } from "@/components/ui/dialog"
 
 export async function loader() {
   return await getProducts()
@@ -45,7 +44,7 @@ function Products() {
               <td className="p-3">Categoría</td>
               <td className="p-3">Stock</td>
               <td className="p-3">Estado</td>
-              <td className="p-3">Acciones</td>
+              <td className="p-3 max-w-3">Acciones</td>
             </tr>
           </thead>
           <tbody>
