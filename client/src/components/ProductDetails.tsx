@@ -1,6 +1,6 @@
-import { useNavigate, type ActionFunctionArgs, redirect, Form } from "react-router-dom"
+import { type ActionFunctionArgs, redirect, Form } from "react-router-dom"
 import type { Product } from "@/types"
-import { Ellipsis, Pencil, Trash2 } from "lucide-react"
+import { Ellipsis, Trash2 } from "lucide-react"
 import {
   Popover,
   PopoverContent,
@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/popover"
 import { formatCurrency } from "@/utils"
 import { deleteProduct } from "@/services/ProductService"
+import EditProduct from "@/pages/EditProduct"
 
 type ProductDetailsType = {
   product: Product
@@ -22,7 +23,6 @@ export async function action({params} : ActionFunctionArgs) {
 }
 
 function ProductDetails({product}: ProductDetailsType) {
-  const navigate = useNavigate()
 
   return (
     <>
@@ -40,26 +40,16 @@ function ProductDetails({product}: ProductDetailsType) {
               <Ellipsis />
             </PopoverTrigger>
             <PopoverContent align="end">
-              <div className="flex flex-col gap-2">
-                <button
-                  onClick={() => navigate(`/productos/${product.id}/editar`, {
-                    state: {
-                      product
-                    }
-                  })}
-                  className="flex gap-2 items-center text-white p-3 rounded-sm  border-0 uppercase font-bold text-xs text-center cursor-pointer hover:bg-oscuro-primario focus-visible:outline-0"
-                >
-                  <Pencil />
-                  Editar
-                </button>
+              <div className="flex flex-col">
+                <EditProduct product={product} />
 
                 <Form
                   className="w-full"
                   method="POST"
                   action={`productos/${product.id}/eliminar`}
                 >
-                  <div className="flex gap-2 text-red-500 p-3 w-full rounded-sm uppercase font-bold text-xs text-center cursor-pointer hover:bg-oscuro-primario">
-                    <Trash2 />
+                  <div className="flex gap-2 text-red-500 p-3 w-full rounded-sm font-bold text-xs text-center cursor-pointer hover:bg-oscuro-primario">
+                    <Trash2 className="w-4 h-4"/>
 
                     <input
                       type="submit"
@@ -70,28 +60,6 @@ function ProductDetails({product}: ProductDetailsType) {
               </div>
             </PopoverContent>
           </Popover>
-          {/* <div className="flex gap-2 item-center">
-            <button
-              onClick={() => navigate(`/productos/${product.id}/editar`, {
-                state: {
-                  product
-                }
-              })}
-              className="bg-azul-medio p-2 w-full rounded-sm uppercase font-bold text-xs text-center cursor-pointer hover:bg-azul-medio/80"
-            >Editar</button>
-
-            <Form
-              className="w-full"
-              method="POST"
-              action={`productos/${product.id}/eliminar`}
-            >
-              <input
-                type="submit"
-                value="Eliminar"
-                className="bg-red-500 p-2 w-full rounded-sm uppercase font-bold text-xs text-center cursor-pointer hover:bg-red-500/80"  
-              />
-            </Form>
-          </div> */}
         </td>
       </tr>
     </>

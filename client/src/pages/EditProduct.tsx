@@ -1,13 +1,15 @@
-import { Link, Form, redirect, type ActionFunctionArgs, useNavigation, type LoaderFunctionArgs, useLoaderData } from "react-router-dom"
+import { Form, redirect, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router-dom"
+import { Pencil } from "lucide-react"
 import { toast } from "sonner"
-import { getProductById, updateProduct } from "../services/ProductService"
-import type { Product } from "@/types"
+import { Button } from "@/components/ui/button"
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { getProductById, updateProduct } from "@/services/ProductService"
 import ProductForm from "@/components/ProductForm"
+import type { Product } from "@/types"
 
-const availabilityOptions = [
-  { name: "Disponible", value: true },
-  { name: "No Disponible", value: false },
-]
+type EditProductProps = {
+  product: Product
+}
 
 export async function loader({ params }: LoaderFunctionArgs) {
   if (params.id !== undefined) {
@@ -26,7 +28,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   if (Object.values(data).includes("")) {
     toast.error("Todos los campos son obligatorios")
-    return
+    return redirect("/")
   }
 
   if (params.id !== undefined) {
@@ -36,57 +38,40 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 }
 
-function EditProduct() {
-  const navigation = useNavigation()
-  const product = useLoaderData() as Product
-
-  const isSubmitting = navigation.state === "submitting"
+function EditProduct({product}: EditProductProps) {
 
   return (
     <>
-      <div className="flex justify-between">
-        <h2 className="text-2xl text-letra-principal font-bold">
-          Editar Producto
-        </h2>
-        <Link
-          to="/"
-          className="bg-azul-claro font-bold p-4 rounded-md hover:bg-azul-claro/80"
-        >
-          Volver a Productos
-        </Link>
-      </div>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button variant="secondary">
+            <Pencil className="w-4 h-4"/>
+            
+            Editar
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-sm">
+          <Form
+            method="POST"
+            action={`productos/${product.id}/editar`}
+          >
+            <DialogHeader>
+              <DialogTitle>Editar Producto</DialogTitle>
+            </DialogHeader>
 
-      <Form className="mt-10" method="POST">
-        <ProductForm
-          product={product}
-        />
+            <ProductForm product={product} />
 
-        <div className="mb-4">
-          <label htmlFor="availability">
-            Disponibilidad:
-          </label>
-          <div className="mt-2 block w-full p-3 bg-[#10131e] rounded-md">
-            <select
-              id="availability"
-              name="availability"
-              className="w-full focus-visible:outline-0"
-              defaultValue={product?.availability.toString()}
-            >
-              {availabilityOptions.map((option) => (
-                <option key={option.name} value={option.value.toString()}>
-                  {option.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-        <input
-          type="submit"
-          value="Editar Producto"
-          className={`mt-5 w-full bg-azul-claro hover:bg-azul-claro/80 p-2 font-bold text-lg  rounded-md ${isSubmitting ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-          disabled={isSubmitting}
-        />
-      </Form>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Cancelar</Button>
+              </DialogClose>
+              <DialogClose>
+                <Button type="submit">Guardar</Button>
+              </DialogClose>
+            </DialogFooter>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

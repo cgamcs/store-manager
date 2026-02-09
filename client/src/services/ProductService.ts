@@ -75,12 +75,14 @@ export async function updateProduct(data: ProductData, id: Product['id']) {
       price: parse(NumberSchema, data.price),
       category: data.category,
       stock: parse(NumberSchema, data.stock),
-      status: data.satatus
+      status: data.status
     })
 
     if(result.success) {
       const url = `${import.meta.env.VITE_API_URL}/products/${id}`
       await axios.put(url, result.output)
+    } else {
+      throw new Error('Datos no validos')
     }
   } catch (error) {
     console.error(error)
