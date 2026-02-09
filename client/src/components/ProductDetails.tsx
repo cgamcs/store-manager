@@ -1,4 +1,4 @@
-import { Form, useNavigate, type ActionFunctionArgs, redirect, useFetcher } from "react-router-dom"
+import { Form, useNavigate, type ActionFunctionArgs, redirect } from "react-router-dom"
 import type { Product } from "@/types"
 import { formatCurrency } from "@/utils"
 import { deleteProduct } from "@/services/ProductService"
@@ -16,26 +16,17 @@ export async function action({params} : ActionFunctionArgs) {
 }
 
 function ProductDetails({product}: ProductDetailsType) {
-  const fetcher = useFetcher()
   const navigate = useNavigate()
-  const isAvailable = product.availability
 
   return (
     <>
       <tr className="bg-claro-primario/50 border-b border-borde">
         <td className="p-3">{product.name}</td>
         <td className="p-3">{formatCurrency(product.price)}</td>
+        <td className="p-3 text-gray-400">{product.category}</td>
+        <td className={`${product.stock === 0 ? 'text-red-600' : product.stock <= 10 ? 'text-yellow-600' : ''} p-3`}>{product.stock}</td>
         <td className="p-3">
-          <fetcher.Form action="" method="post">
-            <button
-              type="submit"
-              name="id"
-              value={product.id}
-              className={`${isAvailable ? '' : 'text-red-500'} rounded-sm p-2 text-xs uppercase font-bold w-full border border-borde cursor-pointer`}
-            >
-              {isAvailable ? "Disponible" : "No Disponible"}
-            </button>
-          </fetcher.Form>
+          <span className={`text-xs rounded-full border px-3 py-1 ${product.status === "Activo" ? 'border-green-500 bg-green-600/10 text-green-500' : product.status === "Archivado" ? 'border-red-500 bg-red-600/10 text-red-500' : 'border-gray-500 bg-gray-600/10 text-gray-500'}`}>{product.status}</span>
         </td>
         <td className="p-3">
           <div className="flex gap-2 item-center">

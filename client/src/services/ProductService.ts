@@ -2,7 +2,6 @@ import { safeParse, pipe, number, parse, transform, string } from "valibot"
 import axios from "axios"
 import { toast } from "sonner"
 import { DraftProductSchema, ProductSchema, ProductsSchema, type Product } from "../types"
-import { toBoolean } from "@/utils"
 
 type ProductData = {
   [k: string]: FormDataEntryValue
@@ -12,14 +11,20 @@ export async function addProduct(data: ProductData) {
   try {
     const result = safeParse(DraftProductSchema, {
       name: data.name,
-      price: +data.price
+      price: +data.price,
+      category: data.name,
+      stock: +data.price,
+      status: data.name
     })
     
     if(result.success) {
       const url = `${import.meta.env.VITE_API_URL}/products`
       await axios.post(url, {
         name: result.output.name,
-        price: result.output.price
+        price: result.output.price,
+        category: result.output.category,
+        stock: result.output.stock,
+        status: result.output.status
       })
 
       toast.success("Producto creado con éxito")
@@ -68,7 +73,9 @@ export async function updateProduct(data: ProductData, id: Product['id']) {
       id,
       name: data.name,
       price: parse(NumberSchema, data.price),
-      availability: toBoolean(data.availability.toString())
+      category: data.category,
+      stock: parse(NumberSchema, data.stock),
+      status: data.satatus
     })
 
     if(result.success) {
@@ -84,15 +91,6 @@ export async function deleteProduct(id: Product['id']) {
   try {
     const url = `${import.meta.env.VITE_API_URL}/products/${id}`
     await axios.delete(url)
-  } catch (error) {
-    console.error(error)
-  }
-}
-
-export async function updateAvailability(id: Product['id']) {
-  try {
-    const url = `${import.meta.env.VITE_API_URL}/products/${id}`
-    await axios.patch(url)
   } catch (error) {
     console.error(error)
   }
