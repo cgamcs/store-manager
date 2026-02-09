@@ -1,6 +1,6 @@
 import { Router } from "express"
 import { body, param } from "express-validator"
-import { createProduct, deleteProduct, getProductById, getProducts, updateAvailability, updateProduct } from "./handlers/product"
+import { createProduct, deleteProduct, getProductById, getProducts, updateProduct } from "./handlers/product"
 import { handleInputErrors } from "./middleware"
 
 const router = Router()
@@ -26,15 +26,25 @@ const router = Router()
  *           type: number
  *           description: Product price
  *           example: 150
- *         availability:
- *           type: boolean
- *           description: Product availability
- *           example: true
+ *         category:
+ *           trype: string
+ *           description: Product category
+ *           example: "Electronicá"
+ *         stock:
+ *           trype: number
+ *           description: Product stock
+ *           example: 12
+ *         status:
+ *           trype: string
+ *           description: Product status
+ *           example: "Activo"
  *       example:
  *         id: 1
  *         name: "Monitor"
  *         price: 150
- *         availability: true
+ *         category: "Electrónica"
+ *         stock: 12
+ *         status: "Activo"
  */
 
 // Routing
@@ -113,6 +123,15 @@ router.get(
  *              price:
  *                trype: number
  *                example: 300
+ *              category:
+ *                trype: string
+ *                example: "Electronicá"
+ *              stock:
+ *                trype: number
+ *                example: 12
+ *              status:
+ *                trype: string
+ *                example: "Activo"
  *    responses:
  *      201:
  *        description: Successful record
@@ -162,9 +181,15 @@ router.post(
  *              price:
  *                trype: number
  *                example: 300
- *              availability:
- *                type: boolean
- *                example: true
+ *              category:
+ *                trype: string
+ *                example: "Electronicá"
+ *              stock:
+ *                trype: number
+ *                example: 12
+ *              status:
+ *                trype: string
+ *                example: "Activo"
  *    responses:
  *      200:
  *        description: Successful response
@@ -188,45 +213,17 @@ router.put(
     .withMessage("El precio es obligatorio")
     .custom((value) => value > 0)
     .withMessage("El precio debe ser mayor a 0"),
-  body("availability")
-    .isBoolean()
-    .withMessage("La disponibilidad debe ser un valor booleano"),
+  body("category").notEmpty().withMessage("La categoría es obligatoria"),
+  body("stock")
+    .isNumeric()
+    .withMessage("El stock debe ser un número")
+    .notEmpty()
+    .withMessage("El stock es obligatorio")
+    .custom((value) => value >= 0)
+    .withMessage("El stock no debe ser negativo"),
+  body("status").notEmpty().withMessage("El estado es obligatorio"),
   handleInputErrors,
   updateProduct,
-)
-
-/**
- * @swagger
- * /products/{id}:
- *  patch:
- *   summary: Update product availability
- *   tags:
- *       - Products
- *   description: Return a updated prodcut availability
- *   parameters:
- *     - in: path
- *       name: id
- *       required: true
- *       description: The product ID
- *       schema:
- *         type: integer
- *   responses:
- *     200:
- *       description: Successful response
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/Product'
- *     400:
- *       description: Invalid ID
- *     404:
- *       description: Product not found
- */
-router.patch(
-  "/:id",
-  param("id").isInt().withMessage("El ID debe ser un número entero"),
-  handleInputErrors,
-  updateAvailability,
 )
 
 /**

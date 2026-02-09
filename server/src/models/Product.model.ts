@@ -15,11 +15,20 @@ class Product extends Model {
   })
   declare price: number
 
-  @Default(true)
   @Column({
-    type: DataType.BOOLEAN
+    type: DataType.STRING(100)
   })
-  declare availability: boolean
+  declare category: string
+
+  @Column({
+    type: DataType.INTEGER
+  })
+  declare stock: number
+
+  @Column({
+    type: DataType.STRING(100)
+  })
+  declare status: string
 }
 
 export default Product
