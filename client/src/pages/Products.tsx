@@ -3,9 +3,9 @@ import { getProducts } from "@/services/ProductService"
 import type { Product } from "@/types"
 import ProductDetails from "@/components/ProductDetails"
 import Header from "@/components/Header"
+import SummaryInventary from "@/components/SummaryInventary"
 
 export async function loader() {
-
   return await getProducts()
 }
 
@@ -15,6 +15,10 @@ function Products() {
   return (
     <>
       <Header />
+
+      <SummaryInventary 
+        products={products}
+      />
 
       <div className="rounded-md overflow-hidden mt-10 border border-borde">
         <table className="w-full table-auto">
