@@ -1,5 +1,5 @@
 import { DollarSign, Package, TrendingUp, TriangleAlert } from "lucide-react"
-import { formatCurrency } from "@/utils"
+import { formatQuantity } from "@/utils"
 import type { Product } from '@/types'
 
 type ProductsProps = {
@@ -69,7 +69,7 @@ function SummaryInventary({products}: ProductsProps) {
             </div>
             <div className="flex flex-col gap-2">
               <h3 className="text-gray-400 text-sm">Valor Inventario</h3>
-              <span className="text-4xl font-bold">{formatCurrency(totalInventary)}</span>
+              <span className="text-4xl font-bold">{formatQuantity(totalInventary)}</span>
             </div>
           </div>
         </div>
