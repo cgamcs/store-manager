@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router-dom"
 import Layout from "./layouts/Layout"
 import Products, { loader as productsLoader, action as newProductAction } from "@/pages/Products"
-import { loader as editProductLoader, action as editProductAction } from "./pages/EditProduct"
+import { loader as editProductLoader, action as editProductAction } from "./components/EditProduct"
 import { action as deleteProductAction } from "@/components/ProductDetails"
 
 export const router = createBrowserRouter([

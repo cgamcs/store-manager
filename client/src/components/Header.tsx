@@ -1,4 +1,4 @@
-import NewProduct from "@/pages/NewProduct"
+import NewProduct from "@/components/NewProduct"
 
 function Header() {
   return (

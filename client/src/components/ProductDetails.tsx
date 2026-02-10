@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/popover"
 import { formatCurrency } from "@/utils"
 import { deleteProduct } from "@/services/ProductService"
-import EditProduct from "@/pages/EditProduct"
+import EditProduct from "@/components/EditProduct"
 import { DeleteProductModal } from '@/components/DeleteProductModal'
 
 type ProductDetailsType = {
@@ -44,7 +44,7 @@ function ProductDetails({product}: ProductDetailsType) {
             <PopoverContent align="end">
               <div className="flex flex-col">
                 <EditProduct product={product} />
-                
+
                 <DeleteProductModal product={product} />
               </div>
             </PopoverContent>
