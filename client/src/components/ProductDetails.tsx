@@ -1,4 +1,4 @@
-import { type ActionFunctionArgs, redirect, Form } from "react-router-dom"
+import { type ActionFunctionArgs, redirect } from "react-router-dom"
 import type { Product } from "@/types"
 import { Ellipsis } from "lucide-react"
 import {
@@ -44,21 +44,7 @@ function ProductDetails({product}: ProductDetailsType) {
             <PopoverContent align="end">
               <div className="flex flex-col">
                 <EditProduct product={product} />
-
-                {/* <Form
-                  className="w-full"
-                  method="POST"
-                  action={`productos/${product.id}/eliminar`}
-                >
-                  <div className="flex gap-2 text-red-500 p-3 w-full rounded-sm font-bold text-xs text-center cursor-pointer hover:bg-oscuro-primario">
-                    <Trash2 className="w-4 h-4"/>
-
-                    <input
-                      type="submit"
-                      value="Eliminar"
-                    />
-                  </div>
-                </Form> */}
+                
                 <DeleteProductModal product={product} />
               </div>
             </PopoverContent>

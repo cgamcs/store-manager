@@ -1,5 +1,4 @@
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogMedia, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
+import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogMedia, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import type { Product } from "@/types"
 import { Trash2, Trash2Icon } from "lucide-react"
 import { Form } from "react-router-dom"
@@ -23,13 +22,13 @@ export function DeleteProductModal({product}: DeleteProductProps) {
           <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
             <Trash2Icon className="w-2 h-2" />
           </AlertDialogMedia>
-          <AlertDialogTitle>Deseas eliminar este producto?</AlertDialogTitle>
+          <AlertDialogTitle>Eliminar Producto</AlertDialogTitle>
           <AlertDialogDescription>
-            Esto eliminara permanente el prodcuto.
+            Estas a punto de eliminar un producto permanentemente.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel variant="outline">Cancelar</AlertDialogCancel>
+          <AlertDialogCancel variant="outline">No, conservar</AlertDialogCancel>
           <Form
             className="w-full"
             method="POST"
@@ -37,8 +36,8 @@ export function DeleteProductModal({product}: DeleteProductProps) {
           >
             <input
               type="submit"
-              value="Eliminar"
-              className="text-red-500 bg-red-700/30 text-center text-sm px-4 py-2 rounded-md w-full cursor-pointer"
+              value="Si, eliminar!"
+              className="text-red-600 bg-red-900/30 text-center text-sm px-4 py-2 rounded-md w-full cursor-pointer"
             />
           </Form>
         </AlertDialogFooter>
