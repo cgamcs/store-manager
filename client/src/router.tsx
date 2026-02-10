@@ -10,7 +10,7 @@ export const router = createBrowserRouter([
     element: <Layout />,
     children: [
       {
-        index: true,
+        path: 'productos',
         element: <Products />,
         loader: productsLoader
       },

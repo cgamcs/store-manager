@@ -1,4 +1,5 @@
-import { Package, LayoutDashboard, Tags, ChartColumn, Settings } from "lucide-react"
+import { Package, LayoutDashboard, Tags, ShoppingCart, User } from "lucide-react"
+import { Link } from "react-router-dom"
 
 function SideBar() {
   return (
@@ -23,15 +24,15 @@ function SideBar() {
 
           {/* Menu Items */}
           {[
-            { icon: <LayoutDashboard />, label: "Dashboard" },
-            { icon: <Package />, label: "Productos" },
-            { icon: <Tags />, label: "Categorías" },
-            { icon: <ChartColumn />, label: "Reportes" },
-            { icon: <Settings />, label: "Configuración" },
+            { icon: <LayoutDashboard />, label: "Dashboard", link: "/" },
+            { icon: <Package />, label: "Productos", link: "productos" },
+            { icon: <Tags />, label: "Categorías", link: "categorias" },
+            { icon: <ShoppingCart />, label: "Ventas", link: "ventas" },
+            { icon: <User />, label: "Usuarios", link: "usuarios" },
           ].map((item, index) => (
             <li key={index}>
-              <a
-                href="#"
+              <Link
+                to={item.link}
                 className="flex items-center gap-x-5 rounded-lg p-2.5 text-gray-200 transition-colors duration-200 hover:bg-indigo-600/20 hover:text-indigo-500"
               >
                 <span className="material-symbols-outlined flex min-w-6 items-center justify-center">
@@ -40,7 +41,7 @@ function SideBar() {
                 <span className="font-medium whitespace-nowrap opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-hover:delay-100">
                   {item.label}
                 </span>
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
