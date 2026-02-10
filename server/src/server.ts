@@ -12,7 +12,7 @@ export async function connectDB() {
     try {
         await db.authenticate()
         db.sync() // Sincroniza los modelos con la base de datos
-        // console.log(colors.blue.bold('Base de datos conectada correctamente'))
+        console.log(colors.blue.bold('Base de datos conectada correctamente'))
     } catch (error) {
         console.log(colors.red.bold('Error al conectar la base de datos'))
         console.log(error)
@@ -25,17 +25,17 @@ connectDB()
 const server  = express()
 
 // Permitir conexiones
-const corsOptions: CorsOptions = {
-    origin: function(origin, callback) {
-        if(origin === process.env.CLIENT_URL) {
-            callback(null, true)
-        } else {
-            callback(new Error('No permitido por CORS'))
-        }
-    }
-}
+// const corsOptions: CorsOptions = {
+//     origin: function(origin, callback) {
+//         if(origin === process.env.CLIENT_URL) {
+//             callback(null, true)
+//         } else {
+//             callback(new Error('No permitido por CORS'))
+//         }
+//     }
+// }
 
-server.use(cors(corsOptions))
+// server.use(cors(corsOptions))
 
 server.use(morgan('dev'))
 
