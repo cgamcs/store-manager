@@ -1,10 +1,10 @@
 import { redirect, useLoaderData, type ActionFunctionArgs } from "react-router-dom"
 import { addProduct, getProducts } from "@/services/ProductService"
 import type { Product } from "@/types"
-import ProductDetails from "@/components/ProductDetails"
-import Header from "@/components/Header"
-import SummaryInventary from "@/components/SummaryInventary"
+import ProductDetails from "@/components/products/ProductDetails"
+import SummaryInventary from "@/components/products/SummaryInventary"
 import { toast } from "sonner"
+import NewProduct from "@/components/products/NewProduct"
 
 export async function loader() {
   return await getProducts()
@@ -25,11 +25,32 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 function Products() {
-  const products = useLoaderData() as Product[]
+  const productss = useLoaderData() as Product[]
+
+  const products = [
+    {
+      id: 1,
+      name: "Jamon FUD",
+      sku: "12sku12",
+      cost: 12,
+      revenue: 18,
+      category: "Carnes Frias",
+      stock: 12,
+      minstock: 2,
+      status: "Activo",
+      description: "Laptop Gamer"
+    }
+  ]
 
   return (
     <>
-      <Header />
+      <header className="bg-oscuro-secundario pb-7.5 border-b-2 border-borde">
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl text-letra-principal font-bold">Productos</h2>
+          
+          <NewProduct />
+        </div>
+      </header>
 
       <SummaryInventary 
         products={products}

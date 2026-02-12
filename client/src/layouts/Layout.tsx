@@ -16,7 +16,7 @@ function Layout() {
         }}
       />
 
-      <div className="flex">
+      <div className="flex bg-oscuro-primario">
         <SideBar />
 
         <main className="mx-auto w-full m-2 py-6 px-5 bg-oscuro-secundario rounded-2xl shadow-2xl">

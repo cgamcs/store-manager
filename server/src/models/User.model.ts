@@ -19,6 +19,11 @@ class User extends Model {
   })
   declare email: string
 
+  @Column({
+    type: DataType.BOOLEAN
+  })
+  declare status: boolean
+
   // Relación muchos a muchos
   @BelongsToMany(() => Rol, () => UserRol)
   declare rols: Rol[]

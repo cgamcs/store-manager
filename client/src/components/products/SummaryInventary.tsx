@@ -3,7 +3,19 @@ import { formatQuantity } from "@/utils"
 import type { Product } from '@/types'
 
 type ProductsProps = {
-  products: Product[]
+  // products: Product[]
+  products: {
+    id: number,
+    name: string,
+    sku: string,
+    cost: number,
+    revenue: number,
+    category: string,
+    stock: number,
+    minstock: number,
+    status: string,
+    description: string
+  }[]
 }
 
 function SummaryInventary({products}: ProductsProps) {
@@ -20,7 +32,7 @@ function SummaryInventary({products}: ProductsProps) {
       activesProducts += 1
     }
 
-    totalInventary += product.price * product.stock
+    totalInventary += product.cost * product.stock
   })
 
   return (

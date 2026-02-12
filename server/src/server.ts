@@ -4,7 +4,7 @@ import swaggerUi from "swagger-ui-express"
 import cors, { CorsOptions } from "cors"
 import morgan from "morgan"
 import swaggerSpec from "./config/swagger"
-import router from "./router"
+import routerProducts from "./router"
 import db from "./config/db"
 
 // Conexion a la base de datos
@@ -42,7 +42,7 @@ server.use(morgan('dev'))
 // Leer datos del formulario
 server.use(express.json())
 
-server.use('/products', router)
+server.use('/products', routerProducts)
 
 // Docs
 server.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))

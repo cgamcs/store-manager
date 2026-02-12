@@ -1,14 +1,24 @@
 import { createBrowserRouter } from "react-router-dom"
 import Layout from "./layouts/Layout"
-import Products, { loader as productsLoader, action as newProductAction } from "@/pages/Products"
-import { loader as editProductLoader, action as editProductAction } from "./components/EditProduct"
-import { action as deleteProductAction } from "@/components/ProductDetails"
+import Dashboard from "./pages/Dashboard"
+import Products, { loader as productsLoader, action as newProductAction } from "./pages/Products"
+import { loader as editProductLoader, action as editProductAction } from "./components/products/EditProduct"
+import { action as deleteProductAction } from "./components/products/ProductDetails"
+import Categories from "./pages/Categories"
+import Sales from "./pages/Sales"
+import Users from "./pages/Users"
+import Login from "./pages/Login"
+import Register from "./pages/Register"
 
 export const router = createBrowserRouter([
   {
     path: '/',
     element: <Layout />,
     children: [
+      {
+        index: true,
+        element: <Dashboard />
+      },
       {
         path: 'productos',
         element: <Products />,
@@ -26,7 +36,27 @@ export const router = createBrowserRouter([
       {
         path: 'productos/:id/eliminar',
         action: deleteProductAction
-      }
+      },
+      {
+        path: 'categorias',
+        element: <Categories />
+      },
+      {
+        path: 'ventas',
+        element: <Sales />
+      },
+      {
+        path: 'usuarios',
+        element: <Users />
+      },
     ]
-  }
+  },
+  {
+    path: '/iniciar-sesion',
+    element: <Login />
+  },
+  {
+    path: '/registrar',
+    element: <Register />
+  },
 ])

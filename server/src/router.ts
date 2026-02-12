@@ -3,7 +3,7 @@ import { body, param } from "express-validator"
 import { createProduct, deleteProduct, getProductById, getProducts, updateProduct } from "./handlers/product"
 import { handleInputErrors } from "./middleware"
 
-const router = Router()
+const routerProducts = Router()
 /**
  * @swagger
  * components:
@@ -66,7 +66,7 @@ const router = Router()
  *              items:
  *                $ref: '#/components/schemas/Product'
  */
-router.get("/", getProducts)
+routerProducts.get("/", getProducts)
 
 /**
  * @swagger
@@ -95,7 +95,7 @@ router.get("/", getProducts)
  *      404:
  *        description: Product not found
  */
-router.get(
+routerProducts.get(
   "/:id",
   param("id").isInt().withMessage("El ID debe ser un número entero"),
   handleInputErrors,
@@ -138,7 +138,7 @@ router.get(
  *      400:
  *        description: Invalid input data
  */
-router.post(
+routerProducts.post(
   "/",
   // Validar los datos recibidos
   body("name").notEmpty().withMessage("El nombre es obligatorio"),
@@ -202,7 +202,7 @@ router.post(
  *      404:
  *        description: Product not found
  */
-router.put(
+routerProducts.put(
   "/:id",
   param("id").isInt().withMessage("El ID debe ser un número entero"),
   body("name").notEmpty().withMessage("El nombre es obligatorio"),
@@ -257,11 +257,11 @@ router.put(
  *      404:
  *        description: Product not found
  */
-router.delete(
+routerProducts.delete(
   "/:id",
   param("id").isInt().withMessage("El ID debe ser un número entero"),
   handleInputErrors,
   deleteProduct,
 )
 
-export default router
+export default routerProducts

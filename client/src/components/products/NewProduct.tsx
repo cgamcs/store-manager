@@ -9,7 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import ProductForm from "@/components/ProductForm"
+import ProductForm from "@/components/products/ProductForm"
 
 function NewProduct() {
 
@@ -19,7 +19,7 @@ function NewProduct() {
         <DialogTrigger asChild>
           <Button>Nuevo Producto</Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent className="sm:max-w-sm md:max-w-lg">
           <Form method="POST" action={`productos/nuevo`}>
             <DialogHeader>
               <DialogTitle>Registrar Producto</DialogTitle>

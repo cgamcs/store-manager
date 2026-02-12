@@ -4,11 +4,20 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { getProductById, updateProduct } from "@/services/ProductService"
-import ProductForm from "@/components/ProductForm"
-import type { Product } from "@/types"
+// import ProductForm from "@/components/ProductForm"
+// import type { Product } from "@/types"
+import UserForm from "@/components/users/UserForm"
 
-type EditProductProps = {
-  product: Product
+type EditUserProps = {
+  user: {
+    id: number
+    name: string
+    lastname: string
+    email: string
+    password: string
+    rol: string
+    status: boolean
+  }
 }
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -38,7 +47,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 }
 
-function EditProduct({product}: EditProductProps) {
+function EditUser({user}: EditUserProps) {
 
   return (
     <>
@@ -53,13 +62,13 @@ function EditProduct({product}: EditProductProps) {
         <DialogContent className="sm:max-w-sm">
           <Form
             method="POST"
-            action={`productos/${product.id}/editar`}
+            action={`usuarios/${user.id}/editar`}
           >
             <DialogHeader>
-              <DialogTitle>Editar Producto</DialogTitle>
+              <DialogTitle>Editar Usuario</DialogTitle>
             </DialogHeader>
 
-            <ProductForm product={product} />
+            <UserForm user={user} />
 
             <DialogFooter>
               <DialogClose asChild>
@@ -76,4 +85,4 @@ function EditProduct({product}: EditProductProps) {
   )
 }
 
-export default EditProduct
+export default EditUser

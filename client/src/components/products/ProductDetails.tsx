@@ -8,11 +8,23 @@ import {
 } from "@/components/ui/popover"
 import { formatCurrency } from "@/utils"
 import { deleteProduct } from "@/services/ProductService"
-import EditProduct from "@/components/EditProduct"
-import { DeleteProductModal } from '@/components/DeleteProductModal'
+import EditProduct from "@/components/products/EditProduct"
+import { DeleteProductModal } from '@/components/products/DeleteProductModal'
 
 type ProductDetailsType = {
-  product: Product
+  // product: Product
+  product: {
+    id: number,
+    name: string,
+    sku: string,
+    cost: number,
+    revenue: number,
+    category: string,
+    stock: number,
+    minstock: number,
+    status: string,
+    description: string
+  }
 }
 
 export async function action({params} : ActionFunctionArgs) {
@@ -30,7 +42,7 @@ function ProductDetails({product}: ProductDetailsType) {
     <>
       <tr className="bg-claro-primario/50 border-b border-borde">
         <td className="p-3">{product.name}</td>
-        <td className="p-3">{formatCurrency(product.price)}</td>
+        <td className="p-3">{formatCurrency(product.cost)}</td>
         <td className="p-3 text-gray-400">{product.category}</td>
         <td className={`${product.stock === 0 ? 'text-red-600' : product.stock <= 10 ? 'text-yellow-600' : ''} p-3`}>{product.stock}</td>
         <td className="p-3">

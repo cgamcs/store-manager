@@ -1,13 +1,20 @@
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogMedia, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
-import type { Product } from "@/types"
 import { Trash2, Trash2Icon } from "lucide-react"
 import { Form } from "react-router-dom"
 
-type DeleteProductProps = {
-  product: Product
+type DeleteUserProps = {
+  user: {
+    id: number
+    name: string
+    lastname: string
+    email: string
+    password: string
+    rol: string
+    status: boolean
+  }
 }
 
-export function DeleteProductModal({product}: DeleteProductProps) {
+export function DeleteUserModal({user}: DeleteUserProps) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -22,9 +29,9 @@ export function DeleteProductModal({product}: DeleteProductProps) {
           <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
             <Trash2Icon className="w-2 h-2" />
           </AlertDialogMedia>
-          <AlertDialogTitle>Eliminar Producto</AlertDialogTitle>
+          <AlertDialogTitle>Eliminar Usuario</AlertDialogTitle>
           <AlertDialogDescription>
-            Estas a punto de eliminar un producto permanentemente.
+            Estas a punto de eliminar un usuario permanentemente.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -32,7 +39,7 @@ export function DeleteProductModal({product}: DeleteProductProps) {
           <Form
             className="w-full"
             method="POST"
-            action={`productos/${product.id}/eliminar`}
+            action={`usuarios/${user.id}/eliminar`}
           >
             <input
               type="submit"
