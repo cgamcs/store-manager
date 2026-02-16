@@ -8,7 +8,8 @@ import Categories from "./pages/Categories"
 import Sales from "./pages/Sales"
 import Users from "./pages/Users"
 import Login from "./pages/Login"
-import Register from "./pages/Register"
+import ChangePassword from "./pages/ChangePassword"
+import SignUp from "./pages/SignUp"
 
 export const router = createBrowserRouter([
   {
@@ -56,7 +57,11 @@ export const router = createBrowserRouter([
     element: <Login />
   },
   {
-    path: '/registrar',
-    element: <Register />
+    path: '/registrarse',
+    element: <SignUp />
+  },
+  {
+    path: '/cambiar-contrasena',
+    element: <ChangePassword />
   },
 ])

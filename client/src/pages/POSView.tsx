@@ -1,5 +1,5 @@
 import Counter from "@/components/Counter";
-import { Banknote, Building, Building2, Search, ShoppingCart, Trash2 } from "lucide-react";
+import { Banknote, Search, ShoppingCart, Trash2 } from "lucide-react";
 
 // POSView.tsx
 export default function POSView() {

@@ -16,7 +16,7 @@ function Dashboard() {
   const chartConfig = {
     sales: {
       label: "Sales",
-      color: "#2563eb",
+      color: "#005AE0",
     },
     label: {
       color: "#fff"
@@ -24,11 +24,11 @@ function Dashboard() {
   } satisfies ChartConfig
 
   const chartData2 = [
-    { browser: "Carnes Frias", visitors: 275, fill: "var(--color-chrome)" },
-    { browser: "Lacteos", visitors: 200, fill: "var(--color-safari)" },
-    { browser: "Ultraprocesados", visitors: 187, fill: "var(--color-firefox)" },
-    { browser: "Limpieza", visitors: 173, fill: "var(--color-edge)" },
-    { browser: "Refrescos", visitors: 90, fill: "var(--color-other)" },
+    { browser: "Carnes Frias", visitors: 275, fill: "#F00C18" },
+    { browser: "Lacteos", visitors: 200, fill: "#19A5FF" },
+    { browser: "Ultraprocesados", visitors: 187, fill: "#13D1FF" },
+    { browser: "Limpieza", visitors: 173, fill: "#FE4F19" },
+    { browser: "Refrescos", visitors: 90, fill: "#FEE719" },
   ]
   const chartConfig2 = {
     visitors: {
@@ -175,11 +175,11 @@ function Dashboard() {
           </div>
           <div className="mt-5">
               <ul>
-                <li className="flex gap-2 items-center"><span className="block w-4 h-4 rounded-full bg-[#f64900]"></span>Carnes Frias</li>
-                <li className="flex gap-2 items-center"><span className="block w-4 h-4 rounded-full bg-[#009689]"></span>Lacteos</li>
-                <li className="flex gap-2 items-center"><span className="block w-4 h-4 rounded-full bg-[#0f4e64]"></span>Ultraprocesados</li>
-                <li className="flex gap-2 items-center"><span className="block w-4 h-4 rounded-full bg-[#ffba00]"></span>Limpieza</li>
-                <li className="flex gap-2 items-center"><span className="block w-4 h-4 rounded-full bg-[#fe9900]"></span>Refrescos</li>
+                <li className="flex gap-2 items-center"><span className="block w-4 h-4 rounded-full bg-[#F00C18]"></span>Carnes Frias</li>
+                <li className="flex gap-2 items-center"><span className="block w-4 h-4 rounded-full bg-[#19A5FF]"></span>Lacteos</li>
+                <li className="flex gap-2 items-center"><span className="block w-4 h-4 rounded-full bg-[#13D1FF]"></span>Ultraprocesados</li>
+                <li className="flex gap-2 items-center"><span className="block w-4 h-4 rounded-full bg-[#FE4F19]"></span>Limpieza</li>
+                <li className="flex gap-2 items-center"><span className="block w-4 h-4 rounded-full bg-[#FEE719]"></span>Refrescos</li>
               </ul>
           </div>
         </div>
@@ -237,7 +237,7 @@ function Dashboard() {
                 <p className="">Jamon FUD 500gr</p>
                 <span className="text-gray-400 text-xs">EST-001</span>
               </div>
-              <span className="bg-red-600 rounded-full px-4 py-1">
+              <span className="bg-red-600 text-xs rounded-full p-3 w-8 h-8 flex items-center justify-center">
                 9
               </span>
             </div>
@@ -247,7 +247,7 @@ function Dashboard() {
                   <p className="">Coca-Cola 600ml</p>
                   <span className="text-gray-400 text-xs">AGU-003</span>
               </div>
-              <span className="bg-red-600 rounded-full px-4 py-1">
+              <span className="bg-red-600 text-xs rounded-full p-3 w-8 h-8 flex items-center justify-center">
                 8
               </span>
             </div>
@@ -257,7 +257,7 @@ function Dashboard() {
                   <p className="">Lala Entera 1lt</p>
                   <span className="text-gray-400 text-xs">BOT-002</span>
               </div>
-              <span className="bg-red-600 rounded-full px-4 py-1">
+              <span className="bg-red-600 text-xs rounded-full p-3 w-8 h-8 flex items-center justify-center">
                 3
               </span>
             </div>

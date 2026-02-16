@@ -59,6 +59,24 @@ function UserForm({ user }: UserFormProps) {
           />
         </Field>
         <Field>
+          <Label htmlFor="password">Contraseña</Label>
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            // defaultValue={user?.email}
+          />
+        </Field>
+        <Field>
+          <Label htmlFor="password">Verificar Contraseña</Label>
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            // defaultValue={user?.email}
+          />
+        </Field>
+        <Field>
           <Label htmlFor="rol">Roles</Label>
           <Select value={rol} onValueChange={setRol}>
             <SelectTrigger className="w-full">

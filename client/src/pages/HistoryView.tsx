@@ -82,6 +82,114 @@ export default function HistoryView() {
                     <SaleSummary />
                   </td>
                 </tr>
+
+                <tr className="bg-claro-primario/50 border-b border-borde">
+                  <td className="p-3">sale-1770870341886-22alc</td>
+                  <td className="p-3">2026-02-12</td>
+                  <td className="p-3">Carlos López</td>
+                  <td className="p-3">5</td>
+                  <td className="p-3"><span className="py-1 px-3 bg-claro-primario rounded-full">Efectivo</span></td>
+                  <td className="p-3">$350.00</td>
+                  <td className="p-3">
+                    <SaleSummary />
+                  </td>
+                </tr>
+
+                <tr className="bg-claro-primario/50 border-b border-borde">
+                  <td className="p-3">sale-1770870341886-22alc</td>
+                  <td className="p-3">2026-02-12</td>
+                  <td className="p-3">Carlos López</td>
+                  <td className="p-3">5</td>
+                  <td className="p-3"><span className="py-1 px-3 bg-claro-primario rounded-full">Efectivo</span></td>
+                  <td className="p-3">$350.00</td>
+                  <td className="p-3">
+                    <SaleSummary />
+                  </td>
+                </tr>
+
+                <tr className="bg-claro-primario/50 border-b border-borde">
+                  <td className="p-3">sale-1770870341886-22alc</td>
+                  <td className="p-3">2026-02-12</td>
+                  <td className="p-3">Carlos López</td>
+                  <td className="p-3">5</td>
+                  <td className="p-3"><span className="py-1 px-3 bg-claro-primario rounded-full">Efectivo</span></td>
+                  <td className="p-3">$350.00</td>
+                  <td className="p-3">
+                    <SaleSummary />
+                  </td>
+                </tr>
+
+                <tr className="bg-claro-primario/50 border-b border-borde">
+                  <td className="p-3">sale-1770870341886-22alc</td>
+                  <td className="p-3">2026-02-12</td>
+                  <td className="p-3">Carlos López</td>
+                  <td className="p-3">5</td>
+                  <td className="p-3"><span className="py-1 px-3 bg-claro-primario rounded-full">Efectivo</span></td>
+                  <td className="p-3">$350.00</td>
+                  <td className="p-3">
+                    <SaleSummary />
+                  </td>
+                </tr>
+
+                <tr className="bg-claro-primario/50 border-b border-borde">
+                  <td className="p-3">sale-1770870341886-22alc</td>
+                  <td className="p-3">2026-02-12</td>
+                  <td className="p-3">Carlos López</td>
+                  <td className="p-3">5</td>
+                  <td className="p-3"><span className="py-1 px-3 bg-claro-primario rounded-full">Efectivo</span></td>
+                  <td className="p-3">$350.00</td>
+                  <td className="p-3">
+                    <SaleSummary />
+                  </td>
+                </tr>
+
+                <tr className="bg-claro-primario/50 border-b border-borde">
+                  <td className="p-3">sale-1770870341886-22alc</td>
+                  <td className="p-3">2026-02-12</td>
+                  <td className="p-3">Carlos López</td>
+                  <td className="p-3">5</td>
+                  <td className="p-3"><span className="py-1 px-3 bg-claro-primario rounded-full">Efectivo</span></td>
+                  <td className="p-3">$350.00</td>
+                  <td className="p-3">
+                    <SaleSummary />
+                  </td>
+                </tr>
+
+                <tr className="bg-claro-primario/50 border-b border-borde">
+                  <td className="p-3">sale-1770870341886-22alc</td>
+                  <td className="p-3">2026-02-12</td>
+                  <td className="p-3">Carlos López</td>
+                  <td className="p-3">5</td>
+                  <td className="p-3"><span className="py-1 px-3 bg-claro-primario rounded-full">Efectivo</span></td>
+                  <td className="p-3">$350.00</td>
+                  <td className="p-3">
+                    <SaleSummary />
+                  </td>
+                </tr>
+
+                <tr className="bg-claro-primario/50 border-b border-borde">
+                  <td className="p-3">sale-1770870341886-22alc</td>
+                  <td className="p-3">2026-02-12</td>
+                  <td className="p-3">Carlos López</td>
+                  <td className="p-3">5</td>
+                  <td className="p-3"><span className="py-1 px-3 bg-claro-primario rounded-full">Efectivo</span></td>
+                  <td className="p-3">$350.00</td>
+                  <td className="p-3">
+                    <SaleSummary />
+                  </td>
+                </tr>
+
+                <tr className="bg-claro-primario/50 border-b border-borde">
+                  <td className="p-3">sale-1770870341886-22alc</td>
+                  <td className="p-3">2026-02-12</td>
+                  <td className="p-3">Carlos López</td>
+                  <td className="p-3">5</td>
+                  <td className="p-3"><span className="py-1 px-3 bg-claro-primario rounded-full">Efectivo</span></td>
+                  <td className="p-3">$350.00</td>
+                  <td className="p-3">
+                    <SaleSummary />
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
