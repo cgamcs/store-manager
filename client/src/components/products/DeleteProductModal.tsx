@@ -26,7 +26,7 @@ export function DeleteProductModal({product}: DeleteProductProps) {
         <div className="flex gap-2 text-red-500 p-3 w-full rounded-sm font-bold text-xs text-center cursor-pointer hover:bg-oscuro-primario">
           <Trash2 className="w-4 h-4"/>
 
-          Eliminar
+          Cancelar
         </div>
       </AlertDialogTrigger>
       <AlertDialogContent size="sm">
@@ -34,9 +34,9 @@ export function DeleteProductModal({product}: DeleteProductProps) {
           <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
             <Trash2Icon className="w-2 h-2" />
           </AlertDialogMedia>
-          <AlertDialogTitle>Eliminar Producto</AlertDialogTitle>
+          <AlertDialogTitle>Cancelar Orden</AlertDialogTitle>
           <AlertDialogDescription>
-            Estas a punto de eliminar un producto permanentemente.
+            Estas a punto de una orden
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -48,7 +48,7 @@ export function DeleteProductModal({product}: DeleteProductProps) {
           >
             <input
               type="submit"
-              value="Si, eliminar!"
+              value="Si, cancelar!"
               className="text-red-600 bg-red-900/30 text-center text-sm px-4 py-2 rounded-md w-full cursor-pointer"
             />
           </Form>

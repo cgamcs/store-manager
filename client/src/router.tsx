@@ -10,6 +10,7 @@ import Users from "./pages/Users"
 import Login from "./pages/Login"
 import ChangePassword from "./pages/ChangePassword"
 import SignUp from "./pages/SignUp"
+import HistoryView from "./pages/HistoryView"
 
 export const router = createBrowserRouter([
   {
@@ -44,7 +45,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'ventas',
-        element: <Sales />
+        element: <HistoryView />
       },
       {
         path: 'usuarios',

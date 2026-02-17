@@ -18,7 +18,7 @@ export function DeleteUserModal({user}: DeleteUserProps) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <div className="flex gap-2 text-red-500 p-3 w-full rounded-sm font-bold text-xs text-center cursor-pointer hover:bg-oscuro-primario">
+        <div className="flex gap-2 text-red-500 p-3 w-full rounded-sm font-bold text-xs text-center cursor-pointer hover:bg-oscuro-primario/50">
           <Trash2 className="w-4 h-4"/>
 
           Eliminar

@@ -61,11 +61,11 @@ function Products() {
           <thead className="bg-claro-primario text-gray-300 font-bold border-b border-borde">
             <tr>
               <td className="p-3">Producto</td>
+              <td className="p-3">SKU</td>
               <td className="p-3">Precio</td>
               <td className="p-3">Categoría</td>
               <td className="p-3">Stock</td>
-              <td className="p-3">Estado</td>
-              <td className="p-3 max-w-3">Acciones</td>
+              <td className="p-3 max-w-3">Estado</td>
             </tr>
           </thead>
           <tbody>

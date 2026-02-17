@@ -1,7 +1,6 @@
-import Counter from "@/components/Counter";
-import { Banknote, Search, ShoppingCart, Trash2 } from "lucide-react";
+import Counter from "@/components/Counter"
+import { Banknote, Search, ShoppingCart, Trash2 } from "lucide-react"
 
-// POSView.tsx
 export default function POSView() {
   return (
     <>
@@ -96,10 +95,10 @@ export default function POSView() {
           <button className="mt-5 bg-oscuro-secundario w-full p-5 rounded-md border border-borde col-span-2 flex gap-2 justify-center items-center cursor-pointer">
               <ShoppingCart />
 
-              Completar Venta
+              Comprar
             </button>
         </div>
       </div>
     </>
-  );
+  )
 }

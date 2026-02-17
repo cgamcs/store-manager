@@ -1,11 +1,10 @@
-// SalesPage.tsx
-import { useState } from 'react';
-import ViewSwitch from '@/components/ViewSwitch';
-import POSView from '@/pages/POSView';
-import HistoryView from '@/pages/HistoryView';
+import { useState } from 'react'
+import ViewSwitch from '@/components/ViewSwitch'
+import POSView from '@/pages/POSView'
+import HistorySaleView from './HistorySaleView'
 
 export default function Sales() {
-  const [currentView, setCurrentView] = useState<'pos' | 'history'>('pos');
+  const [currentView, setCurrentView] = useState<'pos' | 'history'>('pos')
 
   return (
     <>
@@ -22,8 +21,8 @@ export default function Sales() {
 
       {/* Vistas condicionales */}
       <div className="mt-10">
-        {currentView === 'pos' ? <POSView /> : <HistoryView />}
+        {currentView === 'pos' ? <POSView /> : <HistorySaleView />}
       </div>
     </>
-  );
+  )
 }

@@ -1,13 +1,21 @@
-import SaleSummary from "@/components/SaleSummary";
-import { BookMarked, Percent, TrendingUp } from "lucide-react";
+import { BookMarked, Percent, TrendingUp, CircleCheck, CircleX, Loader } from "lucide-react"
+import SaleSummary from "@/components/SaleSummary"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 
-// HistoryView.tsx
 export default function HistoryView() {
   return (
     <>
-      <h2 className="text-2xl font-semibold mb-4">Historial de Ventas</h2>
+      <header className="bg-oscuro-secundario pb-9 border-b-2 border-borde">
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl text-letra-principal font-bold">Historial de Ventas</h2>
+        </div>
+      </header>
 
-      <div className="grid grid-cols-3 gap-5">
+      <div className="grid grid-cols-3 gap-5 mt-10">
         <div className="border border-borde p-4 rounded-lg bg-claro-primario">
           <div className="flex items-center gap-5">
             <div className="bg-oscuro-secundario p-3 rounded-md">
@@ -55,7 +63,7 @@ export default function HistoryView() {
                   <td className="p-3">Articulos</td>
                   <td className="p-3">Metodo</td>
                   <td className="p-3">Total</td>
-                  <td className="p-3"></td>
+                  <td className="p-3">Acciones</td>
                 </tr>
               </thead>
               <tbody>
@@ -67,7 +75,30 @@ export default function HistoryView() {
                   <td className="p-3"><span className="py-1 px-3 bg-claro-primario rounded-full">Efectivo</span></td>
                   <td className="p-3">$350.00</td>
                   <td className="p-3">
-                    <SaleSummary />
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <span className="text-xs rounded-full bg-green-600/60 border border-green-400 text-green-400 px-3 py-1 select-none">Aceptado</span>
+                      </PopoverTrigger>
+                      <PopoverContent align="center">
+                        <div className="flex flex-col gap-4 text-white">
+                          <span className="flex items-center justify-left text-green-400 gap-2 text-xs text-center select-none">
+                            <CircleCheck className="w-5 h-5 text-green-500" />
+                            Aceptado
+                          </span>
+
+                          <span className="flex items-center justify-left text-orange-400 gap-2 text-xs text-center select-none">
+                            <Loader className="w-5 h-5 text-orange-500" />
+                            En proceso
+                          </span>
+
+                          <span className="flex items-center justify-left text-red-400 gap-2 text-xs text-center select-none">
+                            <CircleX className="w-5 h-5 text-red-500" />
+                            Cancelado
+                          </span>
+                          {/* <DeleteProductModal product={product} /> */}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </td>
                 </tr>
 
@@ -79,7 +110,30 @@ export default function HistoryView() {
                   <td className="p-3"><span className="py-1 px-3 bg-claro-primario rounded-full">Efectivo</span></td>
                   <td className="p-3">$350.00</td>
                   <td className="p-3">
-                    <SaleSummary />
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <span className="text-xs rounded-full bg-green-600/60 border border-green-400 text-green-400 px-3 py-1 select-none">Aceptado</span>
+                      </PopoverTrigger>
+                      <PopoverContent align="center">
+                        <div className="flex flex-col gap-4 text-white">
+                          <span className="flex items-center justify-left text-green-400 gap-2 text-xs text-center select-none">
+                            <CircleCheck className="w-5 h-5 text-green-500" />
+                            Aceptado
+                          </span>
+
+                          <span className="flex items-center justify-left text-orange-400 gap-2 text-xs text-center select-none">
+                            <Loader className="w-5 h-5 text-orange-500" />
+                            En proceso
+                          </span>
+
+                          <span className="flex items-center justify-left text-red-400 gap-2 text-xs text-center select-none">
+                            <CircleX className="w-5 h-5 text-red-500" />
+                            Cancelado
+                          </span>
+                          {/* <DeleteProductModal product={product} /> */}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </td>
                 </tr>
 
@@ -91,7 +145,30 @@ export default function HistoryView() {
                   <td className="p-3"><span className="py-1 px-3 bg-claro-primario rounded-full">Efectivo</span></td>
                   <td className="p-3">$350.00</td>
                   <td className="p-3">
-                    <SaleSummary />
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <span className="text-xs rounded-full bg-green-600/60 border border-green-400 text-green-400 px-3 py-1 select-none">Aceptado</span>
+                      </PopoverTrigger>
+                      <PopoverContent align="center">
+                        <div className="flex flex-col gap-4 text-white">
+                          <span className="flex items-center justify-left text-green-400 gap-2 text-xs text-center select-none">
+                            <CircleCheck className="w-5 h-5 text-green-500" />
+                            Aceptado
+                          </span>
+
+                          <span className="flex items-center justify-left text-orange-400 gap-2 text-xs text-center select-none">
+                            <Loader className="w-5 h-5 text-orange-500" />
+                            En proceso
+                          </span>
+
+                          <span className="flex items-center justify-left text-red-400 gap-2 text-xs text-center select-none">
+                            <CircleX className="w-5 h-5 text-red-500" />
+                            Cancelado
+                          </span>
+                          {/* <DeleteProductModal product={product} /> */}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </td>
                 </tr>
 
@@ -103,7 +180,30 @@ export default function HistoryView() {
                   <td className="p-3"><span className="py-1 px-3 bg-claro-primario rounded-full">Efectivo</span></td>
                   <td className="p-3">$350.00</td>
                   <td className="p-3">
-                    <SaleSummary />
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <span className="text-xs rounded-full bg-green-600/60 border border-green-400 text-green-400 px-3 py-1 select-none">Aceptado</span>
+                      </PopoverTrigger>
+                      <PopoverContent align="center">
+                        <div className="flex flex-col gap-4 text-white">
+                          <span className="flex items-center justify-left text-green-400 gap-2 text-xs text-center select-none">
+                            <CircleCheck className="w-5 h-5 text-green-500" />
+                            Aceptado
+                          </span>
+
+                          <span className="flex items-center justify-left text-orange-400 gap-2 text-xs text-center select-none">
+                            <Loader className="w-5 h-5 text-orange-500" />
+                            En proceso
+                          </span>
+
+                          <span className="flex items-center justify-left text-red-400 gap-2 text-xs text-center select-none">
+                            <CircleX className="w-5 h-5 text-red-500" />
+                            Cancelado
+                          </span>
+                          {/* <DeleteProductModal product={product} /> */}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </td>
                 </tr>
 
@@ -115,7 +215,30 @@ export default function HistoryView() {
                   <td className="p-3"><span className="py-1 px-3 bg-claro-primario rounded-full">Efectivo</span></td>
                   <td className="p-3">$350.00</td>
                   <td className="p-3">
-                    <SaleSummary />
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <span className="text-xs rounded-full bg-green-600/60 border border-green-400 text-green-400 px-3 py-1 select-none">Aceptado</span>
+                      </PopoverTrigger>
+                      <PopoverContent align="center">
+                        <div className="flex flex-col gap-4 text-white">
+                          <span className="flex items-center justify-left text-green-400 gap-2 text-xs text-center select-none">
+                            <CircleCheck className="w-5 h-5 text-green-500" />
+                            Aceptado
+                          </span>
+
+                          <span className="flex items-center justify-left text-orange-400 gap-2 text-xs text-center select-none">
+                            <Loader className="w-5 h-5 text-orange-500" />
+                            En proceso
+                          </span>
+
+                          <span className="flex items-center justify-left text-red-400 gap-2 text-xs text-center select-none">
+                            <CircleX className="w-5 h-5 text-red-500" />
+                            Cancelado
+                          </span>
+                          {/* <DeleteProductModal product={product} /> */}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </td>
                 </tr>
 
@@ -127,7 +250,30 @@ export default function HistoryView() {
                   <td className="p-3"><span className="py-1 px-3 bg-claro-primario rounded-full">Efectivo</span></td>
                   <td className="p-3">$350.00</td>
                   <td className="p-3">
-                    <SaleSummary />
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <span className="text-xs rounded-full bg-green-600/60 border border-green-400 text-green-400 px-3 py-1 select-none">Aceptado</span>
+                      </PopoverTrigger>
+                      <PopoverContent align="center">
+                        <div className="flex flex-col gap-4 text-white">
+                          <span className="flex items-center justify-left text-green-400 gap-2 text-xs text-center select-none">
+                            <CircleCheck className="w-5 h-5 text-green-500" />
+                            Aceptado
+                          </span>
+
+                          <span className="flex items-center justify-left text-orange-400 gap-2 text-xs text-center select-none">
+                            <Loader className="w-5 h-5 text-orange-500" />
+                            En proceso
+                          </span>
+
+                          <span className="flex items-center justify-left text-red-400 gap-2 text-xs text-center select-none">
+                            <CircleX className="w-5 h-5 text-red-500" />
+                            Cancelado
+                          </span>
+                          {/* <DeleteProductModal product={product} /> */}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </td>
                 </tr>
 
@@ -139,7 +285,30 @@ export default function HistoryView() {
                   <td className="p-3"><span className="py-1 px-3 bg-claro-primario rounded-full">Efectivo</span></td>
                   <td className="p-3">$350.00</td>
                   <td className="p-3">
-                    <SaleSummary />
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <span className="text-xs rounded-full bg-green-600/60 border border-green-400 text-green-400 px-3 py-1 select-none">Aceptado</span>
+                      </PopoverTrigger>
+                      <PopoverContent align="center">
+                        <div className="flex flex-col gap-4 text-white">
+                          <span className="flex items-center justify-left text-green-400 gap-2 text-xs text-center select-none">
+                            <CircleCheck className="w-5 h-5 text-green-500" />
+                            Aceptado
+                          </span>
+
+                          <span className="flex items-center justify-left text-orange-400 gap-2 text-xs text-center select-none">
+                            <Loader className="w-5 h-5 text-orange-500" />
+                            En proceso
+                          </span>
+
+                          <span className="flex items-center justify-left text-red-400 gap-2 text-xs text-center select-none">
+                            <CircleX className="w-5 h-5 text-red-500" />
+                            Cancelado
+                          </span>
+                          {/* <DeleteProductModal product={product} /> */}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </td>
                 </tr>
 
@@ -151,7 +320,30 @@ export default function HistoryView() {
                   <td className="p-3"><span className="py-1 px-3 bg-claro-primario rounded-full">Efectivo</span></td>
                   <td className="p-3">$350.00</td>
                   <td className="p-3">
-                    <SaleSummary />
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <span className="text-xs rounded-full bg-green-600/60 border border-green-400 text-green-400 px-3 py-1 select-none">Aceptado</span>
+                      </PopoverTrigger>
+                      <PopoverContent align="center">
+                        <div className="flex flex-col gap-4 text-white">
+                          <span className="flex items-center justify-left text-green-400 gap-2 text-xs text-center select-none">
+                            <CircleCheck className="w-5 h-5 text-green-500" />
+                            Aceptado
+                          </span>
+
+                          <span className="flex items-center justify-left text-orange-400 gap-2 text-xs text-center select-none">
+                            <Loader className="w-5 h-5 text-orange-500" />
+                            En proceso
+                          </span>
+
+                          <span className="flex items-center justify-left text-red-400 gap-2 text-xs text-center select-none">
+                            <CircleX className="w-5 h-5 text-red-500" />
+                            Cancelado
+                          </span>
+                          {/* <DeleteProductModal product={product} /> */}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </td>
                 </tr>
 
@@ -163,7 +355,30 @@ export default function HistoryView() {
                   <td className="p-3"><span className="py-1 px-3 bg-claro-primario rounded-full">Efectivo</span></td>
                   <td className="p-3">$350.00</td>
                   <td className="p-3">
-                    <SaleSummary />
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <span className="text-xs rounded-full bg-green-600/60 border border-green-400 text-green-400 px-3 py-1 select-none">Aceptado</span>
+                      </PopoverTrigger>
+                      <PopoverContent align="center">
+                        <div className="flex flex-col gap-4 text-white">
+                          <span className="flex items-center justify-left text-green-400 gap-2 text-xs text-center select-none">
+                            <CircleCheck className="w-5 h-5 text-green-500" />
+                            Aceptado
+                          </span>
+
+                          <span className="flex items-center justify-left text-orange-400 gap-2 text-xs text-center select-none">
+                            <Loader className="w-5 h-5 text-orange-500" />
+                            En proceso
+                          </span>
+
+                          <span className="flex items-center justify-left text-red-400 gap-2 text-xs text-center select-none">
+                            <CircleX className="w-5 h-5 text-red-500" />
+                            Cancelado
+                          </span>
+                          {/* <DeleteProductModal product={product} /> */}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </td>
                 </tr>
 
@@ -175,7 +390,30 @@ export default function HistoryView() {
                   <td className="p-3"><span className="py-1 px-3 bg-claro-primario rounded-full">Efectivo</span></td>
                   <td className="p-3">$350.00</td>
                   <td className="p-3">
-                    <SaleSummary />
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <span className="text-xs rounded-full bg-green-600/60 border border-green-400 text-green-400 px-3 py-1 select-none">Aceptado</span>
+                      </PopoverTrigger>
+                      <PopoverContent align="center">
+                        <div className="flex flex-col gap-4 text-white">
+                          <span className="flex items-center justify-left text-green-400 gap-2 text-xs text-center select-none">
+                            <CircleCheck className="w-5 h-5 text-green-500" />
+                            Aceptado
+                          </span>
+
+                          <span className="flex items-center justify-left text-orange-400 gap-2 text-xs text-center select-none">
+                            <Loader className="w-5 h-5 text-orange-500" />
+                            En proceso
+                          </span>
+
+                          <span className="flex items-center justify-left text-red-400 gap-2 text-xs text-center select-none">
+                            <CircleX className="w-5 h-5 text-red-500" />
+                            Cancelado
+                          </span>
+                          {/* <DeleteProductModal product={product} /> */}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </td>
                 </tr>
 
@@ -187,12 +425,35 @@ export default function HistoryView() {
                   <td className="p-3"><span className="py-1 px-3 bg-claro-primario rounded-full">Efectivo</span></td>
                   <td className="p-3">$350.00</td>
                   <td className="p-3">
-                    <SaleSummary />
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <span className="text-xs rounded-full bg-green-600/60 border border-green-400 text-green-400 px-3 py-1 select-none">Aceptado</span>
+                      </PopoverTrigger>
+                      <PopoverContent align="center">
+                        <div className="flex flex-col gap-4 text-white">
+                          <span className="flex items-center justify-left text-green-400 gap-2 text-xs text-center select-none">
+                            <CircleCheck className="w-5 h-5 text-green-500" />
+                            Aceptado
+                          </span>
+
+                          <span className="flex items-center justify-left text-orange-400 gap-2 text-xs text-center select-none">
+                            <Loader className="w-5 h-5 text-orange-500" />
+                            En proceso
+                          </span>
+
+                          <span className="flex items-center justify-left text-red-400 gap-2 text-xs text-center select-none">
+                            <CircleX className="w-5 h-5 text-red-500" />
+                            Cancelado
+                          </span>
+                          {/* <DeleteProductModal product={product} /> */}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
     </>
-  );
+  )
 }

@@ -17,12 +17,12 @@ function NewProduct() {
     <>
       <Dialog>
         <DialogTrigger asChild>
-          <Button>Nuevo Producto</Button>
+          <Button>Nueva Orden de Compra</Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-sm md:max-w-lg">
+        <DialogContent className="sm:max-w-sm md:max-w-5xl">
           <Form method="POST" action={`productos/nuevo`}>
             <DialogHeader>
-              <DialogTitle>Registrar Producto</DialogTitle>
+              <DialogTitle>Orden de Compra</DialogTitle>
             </DialogHeader>
 
             <ProductForm />
@@ -32,7 +32,7 @@ function NewProduct() {
                 <Button variant="outline">Cancelar</Button>
               </DialogClose>
               <DialogClose>
-                <Button type="submit">Guardar Producto</Button>
+                <Button type="submit">Crear Orden</Button>
               </DialogClose>
             </DialogFooter>
           </Form>

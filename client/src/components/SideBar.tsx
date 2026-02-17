@@ -6,11 +6,14 @@ function SideBar() {
     <>
       <aside className="group top-0 left-0 z-50 flex h-screen w-21.25 flex-col overflow-hidden bg-oscuro-primario/80 py-6 px-5 transition-[width] duration-500 ease-in-out hover:w-75">
         <div className="flex items-center">
-          <div className="bg-indigo-600 min-w-10.5 p-2 rounded-lg flex justify-center">
+          {/* <div className="bg-indigo-600 min-w-10.5 p-2 rounded-lg flex justify-center">
             <Package className="text-white size-6 rounded-full" />
+          </div> */}
+          <div className="min-w-10.5 p-2 flex justify-center items-center">
+            <img src="./logo.png" alt="Logo Don Tello" className="size-6 rounded-sm" />
           </div>
           <h2 className="text-xl font-semibold text-gray-200 whitespace-nowrap mx-6 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-hover:delay-100">
-            Store Manager
+            Don Tello
           </h2>
         </div>
 
