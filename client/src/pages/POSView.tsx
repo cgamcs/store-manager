@@ -27,6 +27,7 @@ export default function POSView() {
               <thead className="bg-claro-primario text-gray-300 font-bold border-b border-borde">
                 <tr>
                   <td className="p-3">Producto</td>
+                  <td className="p-3">Stock</td>
                   <td className="p-3">Cantidad</td>
                   <td className="p-3">Precio</td>
                   <td className="p-3">Total</td>
@@ -36,6 +37,7 @@ export default function POSView() {
               <tbody>
                 <tr className="bg-claro-primario/50 border-b border-borde">
                   <td className="p-3">Hilo de Algodón Blanco</td>
+                  <td className="p-3 text-gray-400">12</td>
                   <td className="p-3"><Counter /></td>
                   <td className="p-3">$35</td>
                   <td className="p-3">$70</td>
@@ -44,6 +46,7 @@ export default function POSView() {
 
                 <tr className="bg-claro-primario/50 border-b border-borde">
                   <td className="p-3">Hilo de Poliéster Negro</td>
+                  <td className="p-3 text-gray-400">25</td>
                   <td className="p-3"><Counter /></td>
                   <td className="p-3">$30</td>
                   <td className="p-3">$30</td>

@@ -1,7 +1,7 @@
-import { Package, LayoutDashboard, Tags, ShoppingCart, User, NotebookPen } from "lucide-react"
+import { Package, LayoutDashboard, Tags, ShoppingCart, User } from "lucide-react"
 import { Link } from "react-router-dom"
 
-function SideBar() {
+function SideBar2() {
 
   return (
     <>
@@ -28,12 +28,8 @@ function SideBar() {
 
           {/* Menu Items */}
           {[
-            { icon: <LayoutDashboard />, label: "Dashboard", link: "" },
-            { icon: <Package />, label: "Productos", link: "productos" },
-            { icon: <NotebookPen />, label: "Inventarios", link: "inventarios" },
             { icon: <Tags />, label: "Categorías", link: "categorias" },
             { icon: <ShoppingCart />, label: "Ventas", link: "ventas" },
-            { icon: <User />, label: "Usuarios", link: "usuarios" },
           ].map((item, index) => (
             <li key={index}>
               <Link
@@ -60,4 +56,4 @@ function SideBar() {
   )
 }
 
-export default SideBar
+export default SideBar2

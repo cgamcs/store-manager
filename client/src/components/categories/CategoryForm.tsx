@@ -3,6 +3,7 @@ import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import ColorPicker from "@/components/categories/ColorPicker"
+import ComboboxChips from "../ComboboxChips"
 
 type CategoryFormProps = {
   // product?: Product
@@ -16,6 +17,7 @@ type CategoryFormProps = {
 
 function CategoryForm({ category }: CategoryFormProps) {
   const [color, setColor] = useState<string>(category?.color ?? "")
+  const [selected, setSelected] = useState<string[]>([]);
 
   useEffect(() => {
     setColor(category?.color ?? "")
@@ -43,6 +45,14 @@ function CategoryForm({ category }: CategoryFormProps) {
             defaultValue={category?.description}
           />
         </Field>
+
+        <Field>
+          <Label className="mb-1 block text-sm font-medium">
+            Productos
+          </Label>
+          <ComboboxChips selected={selected} onChange={setSelected} />
+        </Field>
+
         
         <ColorPicker 
           name="color" 

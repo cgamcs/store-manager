@@ -167,7 +167,7 @@ function ProductForm({ product }: ProductFormProps) {
               <div className="flex items-center justify-between">
                 <h3 className="font-bold">Resumen de Orden</h3>
                 
-                <p className="bg-indigo-600 px-2 text-sm rounded-full">3</p>
+                <p className="bg-blue-600 px-2 text-sm rounded-full">3</p>
               </div>
 
               <div className="flex flex-col gap-2 mt-5 overflow-hidden no-scrollbar">

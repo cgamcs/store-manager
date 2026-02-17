@@ -1,3 +1,4 @@
+import { Eye } from "lucide-react"
 import { Form } from "react-router-dom"
 
 function ChangePassword() {
@@ -6,7 +7,7 @@ function ChangePassword() {
       <main className="h-screen w-screen bg-oscuro-primario grid grid-cols-2 items-center justify-center">
         <div className="h-full w-full flex items-center justify-center p-2 overflow-hidden rounded-lg">
           <div className="h-full w-full flex items-center justify-center overflow-hidden rounded-lg">
-            <img src="./banner.jpg" alt="" className="w-full h-full object-cover" />
+            <img src="./logo.png" alt="" className="w-full h-full object-cover" />
           </div>
         </div>
 
@@ -16,14 +17,15 @@ function ChangePassword() {
             <Form>
               <div className="flex flex-col gap-1 mb-3">
                 <label htmlFor="password" className="text-gray-300">Nueva contraseña <span className="text-gray-500">*</span></label>
-                <input
-                  type="password"
-                  name="password"
-                  id="password"
-                  minLength={8}
-                  required
-                  className="w-full bg-oscuro-secundario/50 border border-borde/70 shadow-lg py-2 px-4 rounded-lg focus-visible:outline-0"
-                />
+                <div className="flex justify-between items-center w-full bg-oscuro-secundario/50 border border-borde/70 shadow-lg py-2 px-4 rounded-lg">
+                  <input
+                    type="password"
+                    name="password"
+                    id="password"
+                    className="focus-visible:outline-0 invalid:outline-1 invalid:outline-red-500"
+                  />
+                  <Eye className="text-gray-400" />
+                </div>
               </div>
 
               <div className="flex flex-col gap-1 mb-7">

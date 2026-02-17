@@ -16,7 +16,7 @@ export default function Counter() {
 
   return (
     <>
-      <div className="flex items-center justify-center gap-4">
+      <div className="flex items-center gap-4">
           <Minus
             onClick={decrement}
             strokeWidth={3}

@@ -10,7 +10,7 @@ export default function Sales() {
     <>
       <header className="bg-oscuro-secundario pb-5 border-b-2 border-borde">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl text-letra-principal font-bold">Ventas</h2>
+          <h2 className="text-2xl text-letra-principal font-bold">Compras</h2>
           
           <ViewSwitch 
             onViewChange={setCurrentView}

@@ -17,8 +17,8 @@ function CategoryDetails({category} : CategoryDetailsProps) {
     <>
       <div className='bg-claro-primario p-5 rounded-lg border border-borde'>
         <div className="flex gap-2">
-          <div className={`bg-[${category.color}]/30 p-3 rounded-md`} >
-            <Tags className={`text-[${category.color}]`} />
+          <div className="p-3 rounded-md" style={{ backgroundColor: `${category.color}4D` }} >
+            <Tags style={{ color: category.color }} />
           </div>
           <div className="flex justify-between align-items w-full">
             <div className="flex flex-col justify-between">

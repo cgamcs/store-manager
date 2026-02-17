@@ -1,5 +1,4 @@
 import { BookMarked, Percent, TrendingUp, CircleCheck, CircleX, Loader } from "lucide-react"
-import SaleSummary from "@/components/SaleSummary"
 import {
   Popover,
   PopoverContent,

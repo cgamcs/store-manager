@@ -11,10 +11,13 @@ import Login from "./pages/Login"
 import ChangePassword from "./pages/ChangePassword"
 import SignUp from "./pages/SignUp"
 import HistoryView from "./pages/HistoryView"
+import POSView from "./pages/POSView"
+import Layout2 from "./layouts/Layout2"
+import Inventarios from "./pages/Inventarios"
 
 export const router = createBrowserRouter([
   {
-    path: '/',
+    path: 'admin/',
     element: <Layout />,
     children: [
       {
@@ -40,6 +43,10 @@ export const router = createBrowserRouter([
         action: deleteProductAction
       },
       {
+        path: 'inventarios',
+        element: <Inventarios />
+      },
+      {
         path: 'categorias',
         element: <Categories />
       },
@@ -51,6 +58,21 @@ export const router = createBrowserRouter([
         path: 'usuarios',
         element: <Users />
       },
+    ]
+  },
+  {
+    path: '/',
+    element: <Layout2 />,
+    children: [
+      {
+        index: true,
+        path: 'categorias',
+        element: <Categories />
+      },
+      {
+        path: 'compras',
+        element: <Sales />
+      }
     ]
   },
   {

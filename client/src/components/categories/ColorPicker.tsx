@@ -20,7 +20,7 @@ const PRESET_COLORS = [
   { name: 'Cyan', value: '#06B6D4' },
   { name: 'Sky', value: '#0EA5E9' },
   { name: 'Blue', value: '#3B82F6' },
-  { name: 'Indigo', value: '#6366F1' },
+  { name: 'blue', value: '#6366F1' },
   { name: 'Violet', value: '#8B5CF6' },
   { name: 'Purple', value: '#A855F7' },
   { name: 'Fuchsia', value: '#D946EF' },

@@ -22,6 +22,12 @@ function Categories() {
       description: "Comida chatarra como papas, galletas, etc.",
       color: "#0f4e64"
     },
+    {
+      id: 4,
+      name: "Limpieza",
+      description: "Productos de limpieza para cocina, baño, etc.",
+      color: "#EC4899"
+    },
   ]
 
   return (
