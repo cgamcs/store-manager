@@ -3,7 +3,7 @@ import { ShoppingCart } from "lucide-react"
 function Inventarios() {
   return (
     <>
-      <header className="bg-oscuro-secundario pb-12 border-b-2 border-borde">
+      <header className="bg-oscuro-secundario pb-8.5 border-b-2 border-borde">
         <div className="flex justify-between items-center">
           <h2 className="text-2xl text-letra-principal font-bold">Inventarios</h2>
         </div>

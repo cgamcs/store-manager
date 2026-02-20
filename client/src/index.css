@@ -10,11 +10,16 @@
   --color-azul-medio: #32435e;
   --color-letra-principal: #F9FAFB;
   --color-letra-secundaria: #B8B9B9;
-  --color-oscuro-primario: hsl(224, 28%, 6%);
-  --color-oscuro-secundario: hsl(224, 25%, 8%);
-  --color-claro-primario: hsl(224, 18%, 14%);
-  --color-claro-secundario: hsl(224, 18%, 14%);
-  --color-borde: hsl(224, 15%, 18%);
+  --color-oscuro-primario: #2C5F55;
+  --color-oscuro-secundario: #A7D7C5;
+  --color-claro-primario: #F2F9F7;
+  --color-borde: #486e72;
+
+  /* verde */
+  /* --color-oscuro-primario: #2C5F55;
+  --color-oscuro-secundario: #A7D7C5;
+  --color-claro-primario: #F2F9F7;
+  --color-borde: #486e72; */
 }
 
 .notificacion {

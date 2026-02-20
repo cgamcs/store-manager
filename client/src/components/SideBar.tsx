@@ -10,7 +10,7 @@ function SideBar() {
           {/* <div className="bg-blue-600 min-w-10.5 p-2 rounded-lg flex justify-center">
             <Package className="text-white size-6 rounded-full" />
           </div> */}
-          <div className="min-w-13 p-2 flex justify-center items-center">
+          <div className="min-w-10 bg-[#F0F0F0] rounded-lg flex justify-center items-center">
             <img src="/logo.png" alt="Logo Don Tello" className="size-9 rounded-sm" />
           </div>
           <h2 className="text-xl font-semibold text-gray-200 whitespace-nowrap mx-6 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-hover:delay-100">
@@ -28,22 +28,22 @@ function SideBar() {
 
           {/* Menu Items */}
           {[
-            { icon: <LayoutDashboard />, label: "Dashboard", link: "" },
-            { icon: <Package />, label: "Productos", link: "productos" },
-            { icon: <NotebookPen />, label: "Inventarios", link: "inventarios" },
-            { icon: <Tags />, label: "Categorías", link: "categorias" },
-            { icon: <ShoppingCart />, label: "Ventas", link: "ventas" },
-            { icon: <User />, label: "Usuarios", link: "usuarios" },
+            { icon: <LayoutDashboard className="text-claro-primario" />, label: "Dashboard", link: "" },
+            { icon: <Package className="text-claro-primario" />, label: "Productos", link: "productos" },
+            { icon: <NotebookPen className="text-claro-primario" />, label: "Inventarios", link: "inventarios" },
+            { icon: <Tags className="text-claro-primario" />, label: "Categorías", link: "categorias" },
+            { icon: <ShoppingCart className="text-claro-primario" />, label: "Ventas", link: "ventas" },
+            { icon: <User className="text-claro-primario" />, label: "Usuarios", link: "usuarios" },
           ].map((item, index) => (
             <li key={index}>
               <Link
                 to={item.link}
-                className="flex items-center gap-x-5 rounded-lg p-2.5 text-gray-200 transition-colors duration-200 hover:bg-blue-600/20 hover:text-blue-500"
+                className="flex items-center gap-x-5 rounded-lg p-2.5 transition-colors duration-200 hover:bg-blue-600/20 hover:text-blue-500"
               >
                 <span className="material-symbols-outlined flex min-w-6 items-center justify-center">
                   {item.icon}
                 </span>
-                <span className="font-medium whitespace-nowrap opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-hover:delay-100">
+                <span className="font-medium whitespace-nowrap opacity-0 text-claro-primario transition-opacity duration-200 group-hover:opacity-100 group-hover:delay-100">
                   {item.label}
                 </span>
               </Link>

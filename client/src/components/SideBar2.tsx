@@ -10,7 +10,7 @@ function SideBar2() {
           {/* <div className="bg-blue-600 min-w-10.5 p-2 rounded-lg flex justify-center">
             <Package className="text-white size-6 rounded-full" />
           </div> */}
-          <div className="min-w-13 p-2 flex justify-center items-center">
+          <div className="min-w-10 flex justify-center items-center">
             <img src="/logo.png" alt="Logo Don Tello" className="size-9 rounded-sm" />
           </div>
           <h2 className="text-xl font-semibold text-gray-200 whitespace-nowrap mx-6 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-hover:delay-100">
@@ -28,8 +28,8 @@ function SideBar2() {
 
           {/* Menu Items */}
           {[
+            { icon: <ShoppingCart />, label: "Ventas", link: "compras" },
             { icon: <Tags />, label: "Categorías", link: "categorias" },
-            { icon: <ShoppingCart />, label: "Ventas", link: "ventas" },
           ].map((item, index) => (
             <li key={index}>
               <Link
