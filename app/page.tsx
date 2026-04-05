@@ -14,6 +14,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -24,13 +25,10 @@ export default function LoginPage() {
       correo: email,
       contrasena: password,
       redirect: false,
+      rememberMe: rememberMe ? "true" : "false",
     })
 
-    console.log(result)
-
-    if (result?.error) {
-      console.log(result.error)
-    } else {
+    if (result?.ok) {
       const session = await getSession()
       const rolId = (session?.user as { rolId?: number })?.rolId
       router.push(rolId === 1 ? "/admin/dashboard" : "/pos")
@@ -115,7 +113,12 @@ export default function LoginPage() {
 
               <div className="flex items-center justify-between">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" className="w-4 h-4 rounded border-border text-primary focus:ring-primary/20" />
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="w-4 h-4 rounded border-border text-primary focus:ring-primary/20"
+                  />
                   <span className="text-sm text-muted-foreground">Recordarme</span>
                 </label>
                 <Link href="/recuperar" className="text-sm text-primary hover:text-primary/80 font-medium transition-colors">

@@ -13,6 +13,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       credentials: {
         correo: { label: "Correo electrónico", type: "email" },
         contrasena: { label: "Contraseña", type: "password" },
+        rememberMe: { label: "Recordarme", type: "text" },
       },
       async authorize(credentials) {
         if (!credentials?.correo || !credentials?.contrasena) return null
@@ -47,6 +48,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           name: usuario.nombre,
           email: usuario.correo,
           rolId: usuario.rolId,
+          rememberMe: credentials.rememberMe === "true",
         }
       },
     }),
