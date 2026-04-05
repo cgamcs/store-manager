@@ -1,0 +1,178 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Rol {
+  id       Int       @id @default(autoincrement())
+  nombre   String
+  usuarios Usuario[]
+}
+
+model Usuario {
+  id               Int      @id @default(autoincrement())
+  rolId            Int
+  nombre           String
+  correo           String   @unique
+  contrasena       String
+  correoVerificado Boolean  @default(false)
+
+  rol          Rol      @relation(fields: [rolId], references: [id])
+  perfilCajero PerfilCajero?
+  tokens       Token[]
+
+  ventas       Venta[]
+  ordenes      OrdenCompra[]
+}
+
+model Token {
+  id         Int      @id @default(autoincrement())
+  token      String   @unique
+  usuarioId  Int
+  expira     DateTime
+
+  usuario    Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+}
+
+model PerfilCajero {
+  id           Int      @id @default(autoincrement())
+  usuarioId    Int      @unique
+  direccion    String?
+  telefono     String?
+  turno        String?
+
+  usuario      Usuario  @relation(fields: [usuarioId], references: [id])
+}
+
+model Categoria {
+  id                 Int        @id @default(autoincrement())
+  nombre             String
+  porcentajeGanancia Decimal
+
+  productos          Producto[]
+}
+
+model Proveedor {
+  id                  Int        @id @default(autoincrement())
+  codigo              String     @unique
+  nombreComercial     String
+  razonSocial         String
+  rfc                 String     @unique
+  contacto            String
+  correo              String
+  telefono            String
+  direccion           String
+  cantidadMinimaOrden Decimal
+  tiempoEntregaDias   Int
+  plazoPago           String
+  metodosPago         String[]
+
+  productos       Producto[]
+  ordenes         OrdenCompra[]
+}
+
+model Producto {
+  id            Int        @id @default(autoincrement())
+  proveedorId   Int
+  categoriaId   Int
+  nombre        String
+  sku           String?    @unique
+  precioCompra  Decimal
+  precioVenta   Decimal
+  stockActual   Int
+  stockMinimo   Int        @default(10)
+
+  proveedor     Proveedor  @relation(fields: [proveedorId], references: [id])
+  categoria     Categoria  @relation(fields: [categoriaId], references: [id])
+
+  fechasCaducidad FechaCaducidad[]
+  descuentos    DescuentoProducto[]
+  ventaDetalles VentaDetalle[]
+  ordenDetalles OrdenDetalle[]
+}
+
+model FechaCaducidad {
+  id               Int       @id @default(autoincrement())
+  productoId       Int
+  fechaCaducidad   DateTime
+  cantidad         Int
+
+  producto         Producto  @relation(fields: [productoId], references: [id])
+}
+
+model Descuento {
+  id          Int                   @id @default(autoincrement())
+  nombre      String
+  porcentaje  Decimal
+  activo      Boolean
+
+  productos   DescuentoProducto[]
+}
+
+model DescuentoProducto {
+  descuentoId Int
+  productoId  Int
+
+  descuento   Descuento @relation(fields: [descuentoId], references: [id])
+  producto    Producto  @relation(fields: [productoId], references: [id])
+
+  @@id([descuentoId, productoId])
+}
+
+model Venta {
+  id         Int             @id @default(autoincrement())
+  cajeroId   Int
+  fechaHora  DateTime        @default(now())
+  total      Decimal
+
+  cajero     Usuario         @relation(fields: [cajeroId], references: [id])
+  detalles   VentaDetalle[]
+}
+
+model VentaDetalle {
+  id                 Int      @id @default(autoincrement())
+  ventaId            Int
+  productoId         Int
+  cantidad           Int
+  precioUnitario     Decimal
+
+  venta              Venta    @relation(fields: [ventaId], references: [id])
+  producto           Producto @relation(fields: [productoId], references: [id])
+}
+
+model OrdenCompra {
+  id            Int             @id @default(autoincrement())
+  proveedorId   Int
+  usuarioId     Int
+  fechaOrden    DateTime        @default(now())
+  estado        String          @default("pendiente")
+  total         Decimal
+
+  proveedor     Proveedor       @relation(fields: [proveedorId], references: [id])
+  usuario       Usuario         @relation(fields: [usuarioId], references: [id])
+  detalles      OrdenDetalle[]
+}
+
+model OrdenDetalle {
+  id              Int       @id @default(autoincrement())
+  ordenId         Int
+  productoId      Int
+  cantidad        Int
+  unidad          String    @default("pieza")
+  piezasPorUnidad Int       @default(1)
+  precioCompra    Decimal
+  precioVenta     Decimal?
+  fechaCaducidad  DateTime?
+
+  orden           OrdenCompra @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  producto        Producto    @relation(fields: [productoId], references: [id])
+}
