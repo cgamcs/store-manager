@@ -49,6 +49,11 @@ model PerfilCajero {
   direccion    String?
   telefono     String?
   turno        String?
+  nss          String?
+  rfc          String?
+  fechaIngreso DateTime?
+  sueldo       Decimal?
+  horasSemana  Int?
 
   usuario      Usuario  @relation(fields: [usuarioId], references: [id])
 }
