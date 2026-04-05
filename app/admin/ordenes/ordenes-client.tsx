@@ -6,6 +6,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -720,95 +728,136 @@ export default function OrdenesClient({
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Card className="rounded-2xl border-border/50 shadow-lg">
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-linear-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+              <ShoppingCart className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-foreground">{ordenes.length}</p>
+              <p className="text-sm text-muted-foreground">Total órdenes</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-2xl border-border/50 shadow-lg">
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-linear-to-br from-[oklch(0.75_0.15_75)]/20 to-[oklch(0.75_0.15_75)]/10 flex items-center justify-center">
+              <Clock className="w-6 h-6 text-[oklch(0.6_0.15_75)]" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-foreground">
+                {ordenes.filter((o) => o.estado === "pendiente").length}
+              </p>
+              <p className="text-sm text-muted-foreground">Pendientes</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-2xl border-border/50 shadow-lg">
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-linear-to-br from-[oklch(0.6_0.15_145)]/20 to-[oklch(0.6_0.15_145)]/10 flex items-center justify-center">
+              <CheckCircle2 className="w-6 h-6 text-[oklch(0.5_0.15_145)]" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-foreground">
+                {ordenes.filter((o) => o.estado === "recibida").length}
+              </p>
+              <p className="text-sm text-muted-foreground">Recibidas</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Orders Table */}
       <Card className="rounded-2xl border-border/50 shadow-lg overflow-hidden">
         <CardHeader className="pb-0">
           <CardTitle className="text-foreground">Órdenes de Compra</CardTitle>
         </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border/50">
-                  <th className="text-left p-4 text-muted-foreground font-medium">ID</th>
-                  <th className="text-left p-4 text-muted-foreground font-medium">Proveedor</th>
-                  <th className="text-left p-4 text-muted-foreground font-medium">Fecha</th>
-                  <th className="text-left p-4 text-muted-foreground font-medium">Estado</th>
-                  <th className="text-right p-4 text-muted-foreground font-medium">Total</th>
-                  <th className="text-center p-4 text-muted-foreground font-medium">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredOrders.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="text-center py-12 text-muted-foreground">
-                      No hay órdenes registradas
-                    </td>
-                  </tr>
-                ) : (
-                  filteredOrders.map((order) => {
-                    const status = statusColors[order.estado] ?? statusColors.pendiente
-                    const StatusIcon = status.icon
-                    return (
-                      <tr key={order.id} className="border-b border-border/30 hover:bg-muted/30 transition-colors">
-                        <td className="p-4">
-                          <span className="font-mono text-sm text-foreground">#{order.id.toString().padStart(4, "0")}</span>
-                        </td>
-                        <td className="p-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-primary/10 to-accent/10 flex items-center justify-center">
-                              <Truck className="w-5 h-5 text-primary" />
-                            </div>
-                            <div>
-                              <p className="font-medium text-foreground">{order.proveedor.nombreComercial}</p>
-                              <p className="text-sm text-muted-foreground">{order.proveedor.correo}</p>
-                            </div>
+        <CardContent className="p-0 mt-4">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-border/50 hover:bg-transparent">
+                <TableHead className="pl-6 text-muted-foreground font-medium">ID</TableHead>
+                <TableHead className="text-muted-foreground font-medium">Proveedor</TableHead>
+                <TableHead className="text-muted-foreground font-medium">Fecha</TableHead>
+                <TableHead className="text-muted-foreground font-medium">Estado</TableHead>
+                <TableHead className="text-right text-muted-foreground font-medium">Total</TableHead>
+                <TableHead className="text-center text-muted-foreground font-medium pr-6">Acciones</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredOrders.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">
+                    No hay órdenes registradas
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredOrders.map((order) => {
+                  const status = statusColors[order.estado] ?? statusColors.pendiente
+                  const StatusIcon = status.icon
+                  return (
+                    <TableRow key={order.id} className="border-border/30 hover:bg-muted/30 transition-colors">
+                      <TableCell className="pl-6 py-4">
+                        <span className="font-mono text-sm text-foreground">#{order.id.toString().padStart(4, "0")}</span>
+                      </TableCell>
+                      <TableCell className="py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-lg bg-linear-to-br from-primary/10 to-accent/10 flex items-center justify-center shrink-0">
+                            <Truck className="w-4 h-4 text-primary" />
                           </div>
-                        </td>
-                        <td className="p-4">
-                          <div className="flex items-center gap-2 text-muted-foreground">
-                            <Calendar className="w-4 h-4" />
-                            <span>{new Date(order.fechaOrden).toLocaleDateString("es-MX")}</span>
+                          <div>
+                            <p className="font-medium text-foreground">{order.proveedor.nombreComercial}</p>
+                            <p className="text-sm text-muted-foreground">{order.proveedor.correo}</p>
                           </div>
-                        </td>
-                        <td className="p-4">
-                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${status.bg} ${status.text}`}>
-                            <StatusIcon className="w-4 h-4" />
-                            <span className="capitalize">{order.estado}</span>
-                          </span>
-                        </td>
-                        <td className="p-4 text-right">
-                          <span className="font-bold text-foreground">${toNum(order.total).toLocaleString("es-MX")}</span>
-                        </td>
-                        <td className="p-4">
-                          <div className="flex items-center justify-center gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="rounded-lg h-8 w-8"
-                              onClick={() => openEditDialog(order)}
-                              disabled={order.estado === "recibida" || order.estado === "cancelada"}
-                            >
-                              <Edit className="w-4 h-4 text-muted-foreground" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="rounded-lg h-8 w-8 hover:text-destructive hover:bg-destructive/10"
-                              onClick={() => openDeleteDialog(order)}
-                              disabled={order.estado === "recibida"}
-                            >
-                              <Trash2 className="w-4 h-4 text-muted-foreground" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    )
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-4">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Calendar className="w-4 h-4" />
+                          <span>{new Date(order.fechaOrden).toLocaleDateString("es-MX")}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-4">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${status.bg} ${status.text}`}>
+                          <StatusIcon className="w-4 h-4" />
+                          <span className="capitalize">{order.estado}</span>
+                        </span>
+                      </TableCell>
+                      <TableCell className="py-4 text-right">
+                        <span className="font-bold text-foreground">${toNum(order.total).toLocaleString("es-MX")}</span>
+                      </TableCell>
+                      <TableCell className="py-4 pr-6">
+                        <div className="flex items-center justify-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="rounded-lg h-8 w-8"
+                            onClick={() => openEditDialog(order)}
+                            disabled={order.estado === "recibida" || order.estado === "cancelada"}
+                          >
+                            <Edit className="w-4 h-4 text-muted-foreground" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="rounded-lg h-8 w-8 hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => openDeleteDialog(order)}
+                            disabled={order.estado === "recibida"}
+                          >
+                            <Trash2 className="w-4 h-4 text-muted-foreground" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })
+              )}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     </div>

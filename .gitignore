@@ -17,4 +17,7 @@ node_modules
 .DS_Store
 /src/generated/prisma
 
+# Claude
 CLAUDE.md
+.claude/
+.agents/

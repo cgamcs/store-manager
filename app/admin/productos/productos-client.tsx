@@ -706,39 +706,39 @@ export default function ProductosClient({
       </AlertDialog>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="rounded-2xl border-border/50 shadow-lg">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-              <Package className="w-5 h-5 text-primary" />
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-linear-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+              <Package className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <p className="text-xl font-bold text-foreground">{productos.length}</p>
-              <p className="text-xs text-muted-foreground">Total productos</p>
+              <p className="text-2xl font-bold text-foreground">{productos.length}</p>
+              <p className="text-sm text-muted-foreground">Total productos</p>
             </div>
           </CardContent>
         </Card>
         <Card className="rounded-2xl border-border/50 shadow-lg">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-[oklch(0.75_0.15_75)]/20 to-[oklch(0.75_0.15_75)]/10 flex items-center justify-center">
-              <AlertTriangle className="w-5 h-5 text-[oklch(0.6_0.15_75)]" />
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-linear-to-br from-[oklch(0.75_0.15_75)]/20 to-[oklch(0.75_0.15_75)]/10 flex items-center justify-center">
+              <AlertTriangle className="w-6 h-6 text-[oklch(0.6_0.15_75)]" />
             </div>
             <div>
-              <p className="text-xl font-bold text-foreground">
+              <p className="text-2xl font-bold text-foreground">
                 {productos.filter((p) => p.stockActual <= p.stockMinimo).length}
               </p>
-              <p className="text-xs text-muted-foreground">Stock bajo</p>
+              <p className="text-sm text-muted-foreground">Stock bajo</p>
             </div>
           </CardContent>
         </Card>
         <Card className="rounded-2xl border-border/50 shadow-lg">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-[oklch(0.6_0.15_145)]/20 to-[oklch(0.6_0.15_145)]/10 flex items-center justify-center">
-              <Tag className="w-5 h-5 text-[oklch(0.5_0.15_145)]" />
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-linear-to-br from-[oklch(0.6_0.15_145)]/20 to-[oklch(0.6_0.15_145)]/10 flex items-center justify-center">
+              <Tag className="w-6 h-6 text-[oklch(0.5_0.15_145)]" />
             </div>
             <div>
-              <p className="text-xl font-bold text-foreground">{initialCategorias.length}</p>
-              <p className="text-xs text-muted-foreground">Categorías</p>
+              <p className="text-2xl font-bold text-foreground">{initialCategorias.length}</p>
+              <p className="text-sm text-muted-foreground">Categorías</p>
             </div>
           </CardContent>
         </Card>
