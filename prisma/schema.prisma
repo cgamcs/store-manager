@@ -120,7 +120,9 @@ model Descuento {
   id          Int                   @id @default(autoincrement())
   nombre      String
   porcentaje  Decimal
-  activo      Boolean
+  activo      Boolean               @default(true)
+  fechaInicio DateTime
+  fechaFin    DateTime?
 
   productos   DescuentoProducto[]
 }
@@ -129,8 +131,8 @@ model DescuentoProducto {
   descuentoId Int
   productoId  Int
 
-  descuento   Descuento @relation(fields: [descuentoId], references: [id])
-  producto    Producto  @relation(fields: [productoId], references: [id])
+  descuento   Descuento @relation(fields: [descuentoId], references: [id], onDelete: Cascade)
+  producto    Producto  @relation(fields: [productoId], references: [id], onDelete: Cascade)
 
   @@id([descuentoId, productoId])
 }

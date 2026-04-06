@@ -6,7 +6,7 @@ import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { sendPasswordResetEmail } from "@/lib/email"
 
-// ── 1. Enviar token de recuperación ──────────────────────────────────────────
+// ── 1. Enviar token de recuperación 
 
 export type SendResetState = {
   error?: string
@@ -41,7 +41,7 @@ export async function sendResetToken(
   return { success: true }
 }
 
-// ── 2. Verificar token (paso 1) ───────────────────────────────────────────────
+// ── 2. Verificar token (paso 1) ──
 
 export type VerifyTokenState = {
   error?: string
@@ -66,7 +66,7 @@ export async function verifyResetToken(
   return { valid: true }
 }
 
-// ── 3. Cambiar contraseña (paso 2) ────────────────────────────────────────────
+// ── 3. Cambiar contraseña (paso 2) ──
 
 const changePasswordSchema = z.object({
   token: z.string().length(6, "El código debe tener 6 dígitos"),

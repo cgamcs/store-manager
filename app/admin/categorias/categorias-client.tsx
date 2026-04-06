@@ -43,7 +43,7 @@ import {
 } from "lucide-react"
 import { createCategory, updateCategory, deleteCategory, type CategoriaDB } from "./actions"
 
-// ─── Form ─────────────────────────────────────────────────────────────────────
+//  Form 
 // Defined OUTSIDE the page component to prevent re-mounts on every render.
 
 type CategoriaFormData = {
@@ -118,7 +118,7 @@ function CategoriaForm({
   )
 }
 
-// ─── Client ───────────────────────────────────────────────────────────────────
+//  Client ─
 
 const EMPTY_FORM: CategoriaFormData = { nombre: "", margen_ganancia: 0 }
 
@@ -146,7 +146,7 @@ export default function CategoriasClient({
     setCategorias(initialCategorias)
   }, [initialCategorias])
 
-  // ── Derived data ────────────────────────────────────────────────────────────
+  // ── Derived data 
   const filteredCategorias = categorias.filter((c) =>
     c.nombre.toLowerCase().includes(searchQuery.toLowerCase())
   )
@@ -161,7 +161,7 @@ export default function CategoriasClient({
     return c.productCount > top.productCount ? c : top
   }, null)
 
-  // ── Handlers ────────────────────────────────────────────────────────────────
+  // ── Handlers ─
   const resetForm = () => {
     setFormData(EMPTY_FORM)
     setCreateError(null)
@@ -224,7 +224,7 @@ export default function CategoriasClient({
     })
   }
 
-  // ── Render ──────────────────────────────────────────────────────────────────
+  // ── Render 
   return (
     <div className="space-y-6">
 
