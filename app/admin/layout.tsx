@@ -35,9 +35,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname()
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-background to-muted/30 flex">
+    <div className="h-screen bg-linear-to-br from-background to-muted/30 flex overflow-hidden">
       {/* Sidebar */}
-      <aside className={`${collapsed ? 'w-20' : 'w-64'} hidden lg:flex flex-col bg-card border-r border-border/50 shadow-xl transition-all duration-300`}>
+      <aside className={`${collapsed ? 'w-20' : 'w-64'} hidden lg:flex flex-col bg-card border-r border-border/50 shadow-xl transition-all duration-300 shrink-0`}>
         {/* Logo */}
         <div className="p-4 border-b border-border/50">
           <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3'}`}>

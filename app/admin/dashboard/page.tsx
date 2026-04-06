@@ -1,57 +1,182 @@
-"use client"
-
-import { 
-  TrendingUp, 
-  DollarSign, 
-  Package, 
-  Users, 
+import {
+  TrendingUp,
+  DollarSign,
+  Package,
+  Users,
   ShoppingBag,
   AlertTriangle,
   Tag,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { dashboardStats, productosMasVendidos, productos, descuentos } from "@/lib/mock-data"
+import { prisma } from "@/lib/prisma"
+import {
+  startOfDay,
+  endOfDay,
+  subDays,
+  startOfWeek,
+  endOfWeek,
+  subWeeks,
+} from "date-fns"
+import { Prisma } from "@/src/generated/prisma/client"
 
-export default function DashboardPage() {
-  const lowStockProducts = productos.filter(p => p.stock_actual <= p.stock_minimo)
-  const activePromotions = descuentos.filter(d => d.activo)
+function calcChange(current: number, previous: number): { label: string; trend: "up" | "down" } {
+  if (previous === 0) return { label: current > 0 ? "+100%" : "0%", trend: "up" }
+  const pct = ((current - previous) / previous) * 100
+  const sign = pct >= 0 ? "+" : ""
+  return {
+    label: `${sign}${pct.toFixed(1)}%`,
+    trend: pct >= 0 ? "up" : "down",
+  }
+}
+
+function calcChangeAbs(current: number, previous: number): { label: string; trend: "up" | "down" } {
+  const diff = current - previous
+  const sign = diff >= 0 ? "+" : ""
+  return {
+    label: `${sign}${diff}`,
+    trend: diff >= 0 ? "up" : "down",
+  }
+}
+
+type TopProductoRaw = {
+  productoId: number
+  nombre: string
+  totalCantidad: bigint
+  totalGanancia: Prisma.Decimal
+}
+
+export default async function DashboardPage() {
+  const now = new Date()
+  const todayStart = startOfDay(now)
+  const todayEnd = endOfDay(now)
+  const yesterdayStart = startOfDay(subDays(now, 1))
+  const yesterdayEnd = endOfDay(subDays(now, 1))
+  const weekStart = startOfWeek(now, { weekStartsOn: 1 })
+  const weekEnd = endOfDay(now)
+  const lastWeekStart = startOfWeek(subWeeks(now, 1), { weekStartsOn: 1 })
+  const lastWeekEnd = endOfWeek(subWeeks(now, 1), { weekStartsOn: 1 })
+
+  const [
+    ventasHoy,
+    ventasAyer,
+    ventasSemana,
+    ventasSemanaAnterior,
+    productosVendidosHoy,
+    productosVendidosAyer,
+    topProductos,
+    lowStockProducts,
+    activePromotions,
+    totalProductos,
+  ] = await Promise.all([
+    prisma.venta.aggregate({
+      where: { fechaHora: { gte: todayStart, lte: todayEnd } },
+      _sum: { total: true },
+      _count: { id: true },
+    }),
+    prisma.venta.aggregate({
+      where: { fechaHora: { gte: yesterdayStart, lte: yesterdayEnd } },
+      _sum: { total: true },
+      _count: { id: true },
+    }),
+    prisma.venta.aggregate({
+      where: { fechaHora: { gte: weekStart, lte: weekEnd } },
+      _sum: { total: true },
+    }),
+    prisma.venta.aggregate({
+      where: { fechaHora: { gte: lastWeekStart, lte: lastWeekEnd } },
+      _sum: { total: true },
+    }),
+    prisma.ventaDetalle.aggregate({
+      where: { venta: { fechaHora: { gte: todayStart, lte: todayEnd } } },
+      _sum: { cantidad: true },
+    }),
+    prisma.ventaDetalle.aggregate({
+      where: { venta: { fechaHora: { gte: yesterdayStart, lte: yesterdayEnd } } },
+      _sum: { cantidad: true },
+    }),
+    prisma.$queryRaw<TopProductoRaw[]>`
+      SELECT
+        vd."productoId",
+        p.nombre,
+        SUM(vd.cantidad)::bigint AS "totalCantidad",
+        SUM(vd.cantidad * vd."precioUnitario") AS "totalGanancia"
+      FROM "VentaDetalle" vd
+      JOIN "Producto" p ON p.id = vd."productoId"
+      GROUP BY vd."productoId", p.nombre
+      ORDER BY SUM(vd.cantidad) DESC
+      LIMIT 5
+    `,
+    prisma.producto.findMany({
+      where: { stockActual: { lte: prisma.producto.fields.stockMinimo } },
+      select: { id: true, nombre: true, stockActual: true, stockMinimo: true },
+      orderBy: { stockActual: "asc" },
+    }),
+    prisma.descuento.findMany({
+      where: { activo: true },
+      select: { id: true, nombre: true, porcentaje: true, fechaFin: true },
+      orderBy: { fechaInicio: "desc" },
+    }),
+    prisma.producto.count(),
+  ])
+
+  const ventasHoyTotal = Number(ventasHoy._sum.total ?? 0)
+  const ventasAyerTotal = Number(ventasAyer._sum.total ?? 0)
+  const ventasSemanaTotal = Number(ventasSemana._sum.total ?? 0)
+  const ventasSemanaAnteriorTotal = Number(ventasSemanaAnterior._sum.total ?? 0)
+  const prodVendidosHoy = productosVendidosHoy._sum.cantidad ?? 0
+  const prodVendidosAyer = productosVendidosAyer._sum.cantidad ?? 0
+  const ticketHoy = ventasHoy._count.id > 0 ? ventasHoyTotal / ventasHoy._count.id : 0
+  const ticketAyer = ventasAyer._count.id > 0 ? ventasAyerTotal / ventasAyer._count.id : 0
+
+  const ventasHoyChange = calcChange(ventasHoyTotal, ventasAyerTotal)
+  const ventasSemanaChange = calcChange(ventasSemanaTotal, ventasSemanaAnteriorTotal)
+  const prodVendidosChange = calcChangeAbs(prodVendidosHoy, prodVendidosAyer)
+  const ticketChange = calcChange(ticketHoy, ticketAyer)
 
   const stats = [
-    { 
-      label: "Ventas Hoy", 
-      value: `$${dashboardStats.ventasHoy.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`,
-      change: "+12.5%",
-      trend: "up",
+    {
+      label: "Ventas Hoy",
+      value: `$${ventasHoyTotal.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`,
+      change: ventasHoyChange.label,
+      trend: ventasHoyChange.trend,
+      compareLabel: "vs ayer",
       icon: DollarSign,
-      color: "from-[oklch(0.55_0.2_25)] to-[oklch(0.65_0.18_35)]"
+      color: "from-[oklch(0.55_0.2_25)] to-[oklch(0.65_0.18_35)]",
     },
-    { 
-      label: "Ventas Semana", 
-      value: `$${dashboardStats.ventasSemana.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`,
-      change: "+8.2%",
-      trend: "up",
+    {
+      label: "Ventas Semana",
+      value: `$${ventasSemanaTotal.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`,
+      change: ventasSemanaChange.label,
+      trend: ventasSemanaChange.trend,
+      compareLabel: "vs semana pasada",
       icon: TrendingUp,
-      color: "from-[oklch(0.6_0.15_145)] to-[oklch(0.65_0.12_160)]"
+      color: "from-[oklch(0.6_0.15_145)] to-[oklch(0.65_0.12_160)]",
     },
-    { 
-      label: "Productos Vendidos", 
-      value: dashboardStats.productosVendidosHoy.toString(),
-      change: "+23",
-      trend: "up",
+    {
+      label: "Productos Vendidos",
+      value: prodVendidosHoy.toString(),
+      change: prodVendidosChange.label,
+      trend: prodVendidosChange.trend,
+      compareLabel: "vs ayer",
       icon: Package,
-      color: "from-[oklch(0.65_0.18_35)] to-[oklch(0.7_0.15_45)]"
+      color: "from-[oklch(0.65_0.18_35)] to-[oklch(0.7_0.15_45)]",
     },
-    { 
-      label: "Ticket Promedio", 
-      value: `$${dashboardStats.ticketPromedio.toFixed(2)}`,
-      change: "-2.1%",
-      trend: "down",
+    {
+      label: "Ticket Promedio",
+      value: `$${ticketHoy.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`,
+      change: ticketChange.label,
+      trend: ticketChange.trend,
+      compareLabel: "vs ayer",
       icon: ShoppingBag,
-      color: "from-[oklch(0.75_0.15_75)] to-[oklch(0.7_0.12_85)]"
+      color: "from-[oklch(0.75_0.15_75)] to-[oklch(0.7_0.12_85)]",
     },
   ]
+
+  const lowStockFiltered = lowStockProducts.filter(
+    (p) => p.stockActual <= p.stockMinimo
+  )
 
   return (
     <div className="space-y-6">
@@ -70,10 +195,10 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                  <div className={`flex items-center gap-1 text-sm mt-1 ${stat.trend === 'up' ? 'text-[oklch(0.6_0.15_145)]' : 'text-destructive'}`}>
-                    {stat.trend === 'up' ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+                  <div className={`flex items-center gap-1 text-sm mt-1 ${stat.trend === "up" ? "text-[oklch(0.6_0.15_145)]" : "text-destructive"}`}>
+                    {stat.trend === "up" ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
                     <span>{stat.change}</span>
-                    <span className="text-muted-foreground ml-1">vs ayer</span>
+                    <span className="text-muted-foreground ml-1">{stat.compareLabel}</span>
                   </div>
                 </div>
               </div>
@@ -92,20 +217,29 @@ export default function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {productosMasVendidos.map((product, i) => (
-                <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors">
-                  <div className="w-8 h-8 rounded-lg bg-linear-to-br from-primary/20 to-accent/20 flex items-center justify-center font-bold text-primary text-sm">
-                    {i + 1}
+            {topProductos.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <TrendingUp className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p>Sin ventas registradas</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {topProductos.map((product, i) => (
+                  <div key={product.productoId} className="flex items-center gap-4 p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-linear-to-br from-primary/20 to-accent/20 flex items-center justify-center font-bold text-primary text-sm">
+                      {i + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-foreground truncate">{product.nombre}</p>
+                      <p className="text-sm text-muted-foreground">{Number(product.totalCantidad)} unidades</p>
+                    </div>
+                    <p className="font-bold text-foreground">
+                      ${Number(product.totalGanancia).toLocaleString("es-MX", { minimumFractionDigits: 2 })}
+                    </p>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-foreground truncate">{product.nombre}</p>
-                    <p className="text-sm text-muted-foreground">{product.cantidad} unidades</p>
-                  </div>
-                  <p className="font-bold text-foreground">${product.total.toLocaleString('es-MX')}</p>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -118,24 +252,24 @@ export default function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {lowStockProducts.length === 0 ? (
+            {lowStockFiltered.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <Package className="w-12 h-12 mx-auto mb-2 opacity-50" />
                 <p>No hay productos con stock bajo</p>
               </div>
             ) : (
               <div className="space-y-3">
-                {lowStockProducts.slice(0, 5).map((product) => (
+                {lowStockFiltered.slice(0, 5).map((product) => (
                   <div key={product.id} className="flex items-center gap-4 p-3 rounded-xl bg-[oklch(0.75_0.15_75)]/10 border border-[oklch(0.75_0.15_75)]/20">
                     <div className="w-10 h-10 rounded-xl bg-[oklch(0.75_0.15_75)]/20 flex items-center justify-center">
                       <AlertTriangle className="w-5 h-5 text-[oklch(0.6_0.15_75)]" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-foreground truncate">{product.nombre}</p>
-                      <p className="text-sm text-muted-foreground">Mínimo: {product.stock_minimo}</p>
+                      <p className="text-sm text-muted-foreground">Mínimo: {product.stockMinimo}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-[oklch(0.6_0.15_75)]">{product.stock_actual}</p>
+                      <p className="font-bold text-[oklch(0.6_0.15_75)]">{product.stockActual}</p>
                       <p className="text-xs text-muted-foreground">en stock</p>
                     </div>
                   </div>
@@ -167,11 +301,14 @@ export default function DashboardPage() {
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-medium text-foreground">{promo.nombre}</span>
                     <span className="px-2 py-1 rounded-full bg-linear-to-r from-primary to-accent text-primary-foreground text-xs font-bold">
-                      -{promo.porcentaje}%
+                      -{Number(promo.porcentaje)}%
                     </span>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Válido hasta: {new Date(promo.fecha_fin).toLocaleDateString('es-MX')}
+                    Válido hasta:{" "}
+                    {promo.fechaFin
+                      ? new Date(promo.fechaFin).toLocaleDateString("es-MX")
+                      : "No aplica"}
                   </p>
                 </div>
               ))}
@@ -184,17 +321,17 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-card rounded-2xl p-4 border border-border/50 shadow-sm text-center">
           <Users className="w-8 h-8 mx-auto mb-2 text-primary" />
-          <p className="text-2xl font-bold text-foreground">{dashboardStats.clientesAtendidos}</p>
+          <p className="text-2xl font-bold text-foreground">{ventasHoy._count.id}</p>
           <p className="text-sm text-muted-foreground">Clientes atendidos hoy</p>
         </div>
         <div className="bg-card rounded-2xl p-4 border border-border/50 shadow-sm text-center">
           <Package className="w-8 h-8 mx-auto mb-2 text-accent" />
-          <p className="text-2xl font-bold text-foreground">{productos.length}</p>
+          <p className="text-2xl font-bold text-foreground">{totalProductos}</p>
           <p className="text-sm text-muted-foreground">Productos en catálogo</p>
         </div>
         <div className="bg-card rounded-2xl p-4 border border-border/50 shadow-sm text-center">
           <AlertTriangle className="w-8 h-8 mx-auto mb-2 text-[oklch(0.75_0.15_75)]" />
-          <p className="text-2xl font-bold text-foreground">{lowStockProducts.length}</p>
+          <p className="text-2xl font-bold text-foreground">{lowStockFiltered.length}</p>
           <p className="text-sm text-muted-foreground">Productos bajo stock</p>
         </div>
         <div className="bg-card rounded-2xl p-4 border border-border/50 shadow-sm text-center">
