@@ -41,7 +41,7 @@ import {
   Package,
   TrendingUp,
 } from "lucide-react"
-import { createCategory, type CategoriaDB } from "./actions"
+import { createCategory, updateCategory, deleteCategory, type CategoriaDB } from "./actions"
 
 // ─── Form ─────────────────────────────────────────────────────────────────────
 // Defined OUTSIDE the page component to prevent re-mounts on every render.
@@ -138,6 +138,8 @@ export default function CategoriasClient({
   const [selectedCategoria, setSelectedCategoria] = useState<CategoriaDB | null>(null)
   const [formData, setFormData] = useState<CategoriaFormData>(EMPTY_FORM)
   const [createError, setCreateError] = useState<string | null>(null)
+  const [editError, setEditError] = useState<string | null>(null)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   // Sync state when server re-renders with fresh data (after revalidatePath)
   useEffect(() => {
@@ -187,28 +189,39 @@ export default function CategoriasClient({
 
   const handleEdit = () => {
     if (!selectedCategoria) return
-    setCategorias((prev) =>
-      prev.map((c) =>
-        c.id === selectedCategoria.id
-          ? { ...c, nombre: formData.nombre.trim(), margen_ganancia: formData.margen_ganancia }
-          : c
-      )
-    )
-    setIsEditDialogOpen(false)
-    setSelectedCategoria(null)
-    resetForm()
+    setEditError(null)
+    startTransition(async () => {
+      const result = await updateCategory({ id: selectedCategoria.id, ...formData })
+      if (result.error) {
+        setEditError(result.error)
+        return
+      }
+      setIsEditDialogOpen(false)
+      setSelectedCategoria(null)
+      resetForm()
+      router.refresh()
+    })
   }
 
   const openDeleteDialog = (categoria: CategoriaDB) => {
     setSelectedCategoria(categoria)
+    setDeleteError(null)
     setIsDeleteDialogOpen(true)
   }
 
   const handleDelete = () => {
     if (!selectedCategoria) return
-    setCategorias((prev) => prev.filter((c) => c.id !== selectedCategoria.id))
-    setIsDeleteDialogOpen(false)
-    setSelectedCategoria(null)
+    setDeleteError(null)
+    startTransition(async () => {
+      const result = await deleteCategory(selectedCategoria.id)
+      if (result.error) {
+        setDeleteError(result.error)
+        return
+      }
+      setIsDeleteDialogOpen(false)
+      setSelectedCategoria(null)
+      router.refresh()
+    })
   }
 
   // ── Render ──────────────────────────────────────────────────────────────────
@@ -276,11 +289,15 @@ export default function CategoriasClient({
               Editar Categoría
             </DialogTitle>
           </DialogHeader>
+          {editError && (
+            <p className="text-sm text-destructive mt-2">{editError}</p>
+          )}
           <CategoriaForm
             formData={formData}
             setFormData={setFormData}
             isEdit
             onSubmit={handleEdit}
+            isPending={isPending}
           />
         </DialogContent>
       </Dialog>
@@ -299,13 +316,17 @@ export default function CategoriasClient({
               sin categoría asignada.
             </AlertDialogDescription>
           </AlertDialogHeader>
+          {deleteError && (
+            <p className="text-sm text-destructive mb-2">{deleteError}</p>
+          )}
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
+              disabled={isPending}
               className="bg-destructive hover:bg-destructive/90"
             >
-              Eliminar
+              {isPending ? "Eliminando..." : "Eliminar"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
