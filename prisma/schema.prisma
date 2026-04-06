@@ -96,6 +96,7 @@ model Producto {
   precioVenta   Decimal
   stockActual   Int
   stockMinimo   Int        @default(10)
+  esMerma       Boolean    @default(false)
 
   proveedor     Proveedor  @relation(fields: [proveedorId], references: [id])
   categoria     Categoria  @relation(fields: [categoriaId], references: [id])

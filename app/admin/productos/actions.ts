@@ -14,6 +14,30 @@ async function requireAdmin() {
   }
 }
 
+export async function actualizarMermas(diasUmbral = 7) {
+  await requireAdmin()
+  const umbral = new Date()
+  umbral.setDate(umbral.getDate() + diasUmbral)
+
+  const proximos = await prisma.fechaCaducidad.findMany({
+    where: { fechaCaducidad: { lte: umbral } },
+    select: { productoId: true },
+    distinct: ["productoId"],
+  })
+  const idsProximos = proximos.map((f) => f.productoId)
+
+  await prisma.$transaction([
+    prisma.producto.updateMany({
+      where: { id: { in: idsProximos.length ? idsProximos : [-1] } },
+      data: { esMerma: true },
+    }),
+    prisma.producto.updateMany({
+      where: { id: { notIn: idsProximos } },
+      data: { esMerma: false },
+    }),
+  ])
+}
+
 export async function getProducts() {
   await requireAdmin()
   const productos = await prisma.producto.findMany({

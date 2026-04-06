@@ -71,6 +71,7 @@ type ProductoDB = {
   precioVenta: number | string
   stockActual: number
   stockMinimo: number
+  esMerma: boolean
   categoria: CategoriaDB
   proveedor: ProveedorDB
 }
@@ -542,11 +543,17 @@ export default function ProductosClient({
       id: "estado",
       header: () => <span className="block text-center">Estado</span>,
       cell: ({ row }) => {
-        const { stockActual, stockMinimo } = row.original
+        const { stockActual, stockMinimo, esMerma } = row.original
         const isLow = stockActual <= stockMinimo
         const isNear = !isLow && stockActual <= Math.ceil(stockMinimo * 1.5)
         return (
-          <div className="flex justify-center">
+          <div className="flex flex-wrap justify-center gap-1">
+            {esMerma && (
+              <Badge className="gap-1 border-transparent bg-red-100 text-red-700 hover:bg-red-100">
+                <AlertTriangle className="w-3 h-3" />
+                Merma
+              </Badge>
+            )}
             {isLow ? (
               <Badge variant="destructive" className="gap-1">
                 <AlertTriangle className="w-3 h-3" />
@@ -706,7 +713,7 @@ export default function ProductosClient({
       </AlertDialog>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <Card className="rounded-2xl border-border/50 shadow-lg">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-linear-to-br from-primary/20 to-accent/20 flex items-center justify-center">
@@ -728,6 +735,19 @@ export default function ProductosClient({
                 {productos.filter((p) => p.stockActual <= p.stockMinimo).length}
               </p>
               <p className="text-sm text-muted-foreground">Stock bajo</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="rounded-2xl border-border/50 shadow-lg">
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-linear-to-br from-red-500/20 to-red-400/10 flex items-center justify-center">
+              <Trash2 className="w-6 h-6 text-red-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-foreground">
+                {productos.filter((p) => p.esMerma).length}
+              </p>
+              <p className="text-sm text-muted-foreground">Merma (próx. a vencer)</p>
             </div>
           </CardContent>
         </Card>
