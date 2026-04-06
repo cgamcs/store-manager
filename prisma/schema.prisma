@@ -46,6 +46,7 @@ model Token {
 model PerfilCajero {
   id           Int      @id @default(autoincrement())
   usuarioId    Int      @unique
+  activo       Boolean  @default(false)
   direccion    String?
   telefono     String?
   turno        String?

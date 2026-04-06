@@ -22,6 +22,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         try {
           usuario = await prisma.usuario.findUnique({
             where: { correo: credentials.correo as string },
+            include: { perfilCajero: true },
           })
         } catch (err) {
           console.error("[auth] DB error en authorize:", err)
@@ -40,6 +41,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (!passwordMatch) {
           console.error("[auth] Contraseña incorrecta para:", credentials.correo)
+          return null
+        }
+
+        const ROL_ADMIN = 1
+        // Cajeros sin perfil activo no pueden iniciar sesión
+        if (usuario.rolId !== ROL_ADMIN && !usuario.perfilCajero?.activo) {
+          console.error("[auth] Cajero sin perfil activo:", credentials.correo)
           return null
         }
 

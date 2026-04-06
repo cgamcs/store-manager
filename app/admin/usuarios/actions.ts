@@ -140,6 +140,21 @@ export async function updateCajero(id: number, data: unknown) {
   return { ok: true }
 }
 
+export async function toggleActivoCajero(id: number) {
+  await requireAdmin()
+
+  const perfil = await prisma.perfilCajero.findUnique({ where: { usuarioId: id } })
+  if (!perfil) return { error: "El cajero no tiene perfil registrado" }
+
+  await prisma.perfilCajero.update({
+    where: { usuarioId: id },
+    data: { activo: !perfil.activo },
+  })
+
+  revalidatePath("/admin/usuarios")
+  return { ok: true, activo: !perfil.activo }
+}
+
 export async function deleteCajero(id: number) {
   await requireAdmin()
 

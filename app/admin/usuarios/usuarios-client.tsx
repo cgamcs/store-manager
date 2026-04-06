@@ -46,12 +46,15 @@ import {
   FileText,
   Briefcase,
   Lock,
+  ToggleLeft,
+  ToggleRight,
 } from "lucide-react"
 import { Prisma } from "@/src/generated/prisma/client"
 import {
   createCajero,
   updateCajero,
   deleteCajero,
+  toggleActivoCajero,
   searchUserByEmail,
 } from "./actions"
 
@@ -458,6 +461,20 @@ export default function UsuariosClient({ initialCajeros }: { initialCajeros: Caj
     }
   }
 
+  const handleToggleActivo = async (cajero: CajeroCompleto) => {
+    const result = await toggleActivoCajero(cajero.id)
+    if ("ok" in result) {
+      const nuevoActivo = result.activo ?? false
+      setCajeros((prev) =>
+        prev.map((c) =>
+          c.id === cajero.id && c.perfilCajero
+            ? { ...c, perfilCajero: { ...c.perfilCajero, activo: nuevoActivo } }
+            : c
+        )
+      )
+    }
+  }
+
   const totalMatutino = cajeros.filter((c) => c.perfilCajero?.turno === "matutino").length
   const totalVespertino = cajeros.filter((c) => c.perfilCajero?.turno === "vespertino").length
 
@@ -644,15 +661,43 @@ export default function UsuariosClient({ initialCajeros }: { initialCajeros: Caj
                   )}
                 </div>
                 <div className="flex items-center gap-2 pt-3 border-t border-border/50">
-                  <span className="px-2 py-1 rounded-full text-xs font-medium bg-[oklch(0.6_0.15_145)]/10 text-[oklch(0.5_0.15_145)]">
-                    Activo
-                  </span>
+                  {perfil ? (
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      perfil.activo
+                        ? "bg-[oklch(0.6_0.15_145)]/10 text-[oklch(0.5_0.15_145)]"
+                        : "bg-destructive/10 text-destructive"
+                    }`}>
+                      {perfil.activo ? "Activo" : "Inactivo"}
+                    </span>
+                  ) : (
+                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
+                      Sin perfil
+                    </span>
+                  )}
                   {perfil?.horasSemana != null && (
                     <span className="text-xs text-muted-foreground">
                       {perfil.horasSemana}h/semana
                     </span>
                   )}
                   <div className="flex-1" />
+                  {perfil && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={`rounded-lg h-8 w-8 ${
+                        perfil.activo
+                          ? "hover:text-destructive hover:bg-destructive/10"
+                          : "hover:text-[oklch(0.5_0.15_145)] hover:bg-[oklch(0.6_0.15_145)]/10"
+                      }`}
+                      onClick={() => handleToggleActivo(cajero)}
+                      title={perfil.activo ? "Desactivar acceso" : "Activar acceso"}
+                    >
+                      {perfil.activo
+                        ? <ToggleRight className="w-4 h-4 text-[oklch(0.5_0.15_145)]" />
+                        : <ToggleLeft className="w-4 h-4 text-muted-foreground" />
+                      }
+                    </Button>
+                  )}
                   <Button
                     variant="ghost"
                     size="icon"
