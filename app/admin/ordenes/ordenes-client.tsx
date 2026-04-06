@@ -5,14 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+import { DataTable } from "@/components/ui/data-table"
+import type { ColumnDef } from "@tanstack/react-table"
 import {
   Dialog,
   DialogContent,
@@ -310,6 +304,92 @@ export default function OrdenesClient({
       setSelectedOrden(null)
     })
   }
+
+  const columns: ColumnDef<OrdenDB>[] = [
+    {
+      accessorKey: "id",
+      header: "ID",
+      cell: ({ row }) => (
+        <span className="font-mono text-sm text-foreground">
+          #{row.original.id.toString().padStart(4, "0")}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "proveedor",
+      header: "Proveedor",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-linear-to-br from-primary/10 to-accent/10 flex items-center justify-center shrink-0">
+            <Truck className="w-4 h-4 text-primary" />
+          </div>
+          <div>
+            <p className="font-medium text-foreground">{row.original.proveedor.nombreComercial}</p>
+            <p className="text-sm text-muted-foreground">{row.original.proveedor.correo}</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "fechaOrden",
+      header: "Fecha",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Calendar className="w-4 h-4" />
+          <span>{new Date(row.original.fechaOrden).toLocaleDateString("es-MX")}</span>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "estado",
+      header: "Estado",
+      cell: ({ row }) => {
+        const status = statusColors[row.original.estado] ?? statusColors.pendiente
+        const StatusIcon = status.icon
+        return (
+          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${status.bg} ${status.text}`}>
+            <StatusIcon className="w-4 h-4" />
+            <span className="capitalize">{row.original.estado}</span>
+          </span>
+        )
+      },
+    },
+    {
+      accessorKey: "total",
+      header: () => <span className="block text-right">Total</span>,
+      cell: ({ row }) => (
+        <span className="block text-right font-bold text-foreground">
+          ${toNum(row.original.total).toLocaleString("es-MX")}
+        </span>
+      ),
+    },
+    {
+      id: "acciones",
+      header: () => <span className="block text-center">Acciones</span>,
+      cell: ({ row }) => (
+        <div className="flex items-center justify-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-lg h-8 w-8"
+            onClick={() => openEditDialog(row.original)}
+            disabled={row.original.estado === "recibida" || row.original.estado === "cancelada"}
+          >
+            <Edit className="w-4 h-4 text-muted-foreground" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-lg h-8 w-8 hover:text-destructive hover:bg-destructive/10"
+            onClick={() => openDeleteDialog(row.original)}
+            disabled={row.original.estado === "recibida"}
+          >
+            <Trash2 className="w-4 h-4 text-muted-foreground" />
+          </Button>
+        </div>
+      ),
+    },
+  ]
 
   return (
     <div className="space-y-6">
@@ -772,92 +852,12 @@ export default function OrdenesClient({
       </div>
 
       {/* Orders Table */}
-      <Card className="rounded-2xl border-border/50 shadow-lg overflow-hidden">
+      <Card className="rounded-2xl border-border/50 shadow-lg">
         <CardHeader className="pb-0">
           <CardTitle className="text-foreground">Órdenes de Compra</CardTitle>
         </CardHeader>
-        <CardContent className="p-0 mt-4">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border/50 hover:bg-transparent">
-                <TableHead className="pl-6 text-muted-foreground font-medium">ID</TableHead>
-                <TableHead className="text-muted-foreground font-medium">Proveedor</TableHead>
-                <TableHead className="text-muted-foreground font-medium">Fecha</TableHead>
-                <TableHead className="text-muted-foreground font-medium">Estado</TableHead>
-                <TableHead className="text-right text-muted-foreground font-medium">Total</TableHead>
-                <TableHead className="text-center text-muted-foreground font-medium pr-6">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredOrders.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">
-                    No hay órdenes registradas
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredOrders.map((order) => {
-                  const status = statusColors[order.estado] ?? statusColors.pendiente
-                  const StatusIcon = status.icon
-                  return (
-                    <TableRow key={order.id} className="border-border/30 hover:bg-muted/30 transition-colors">
-                      <TableCell className="pl-6 py-4">
-                        <span className="font-mono text-sm text-foreground">#{order.id.toString().padStart(4, "0")}</span>
-                      </TableCell>
-                      <TableCell className="py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-lg bg-linear-to-br from-primary/10 to-accent/10 flex items-center justify-center shrink-0">
-                            <Truck className="w-4 h-4 text-primary" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-foreground">{order.proveedor.nombreComercial}</p>
-                            <p className="text-sm text-muted-foreground">{order.proveedor.correo}</p>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="py-4">
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Calendar className="w-4 h-4" />
-                          <span>{new Date(order.fechaOrden).toLocaleDateString("es-MX")}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="py-4">
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${status.bg} ${status.text}`}>
-                          <StatusIcon className="w-4 h-4" />
-                          <span className="capitalize">{order.estado}</span>
-                        </span>
-                      </TableCell>
-                      <TableCell className="py-4 text-right">
-                        <span className="font-bold text-foreground">${toNum(order.total).toLocaleString("es-MX")}</span>
-                      </TableCell>
-                      <TableCell className="py-4 pr-6">
-                        <div className="flex items-center justify-center gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="rounded-lg h-8 w-8"
-                            onClick={() => openEditDialog(order)}
-                            disabled={order.estado === "recibida" || order.estado === "cancelada"}
-                          >
-                            <Edit className="w-4 h-4 text-muted-foreground" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="rounded-lg h-8 w-8 hover:text-destructive hover:bg-destructive/10"
-                            onClick={() => openDeleteDialog(order)}
-                            disabled={order.estado === "recibida"}
-                          >
-                            <Trash2 className="w-4 h-4 text-muted-foreground" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )
-                })
-              )}
-            </TableBody>
-          </Table>
+        <CardContent className="pt-4">
+          <DataTable columns={columns} data={filteredOrders} pageSize={10} />
         </CardContent>
       </Card>
     </div>

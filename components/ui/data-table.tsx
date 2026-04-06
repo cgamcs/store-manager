@@ -93,7 +93,7 @@ function DataTablePagination<TData>({ table }: { table: TanstackTable<TData> }) 
   return (
     <div className="flex items-center justify-between px-1">
       <p className="text-sm text-muted-foreground">
-        {total === 0 ? "Sin resultados" : `${from}–${to} de ${total} productos`}
+        {total === 0 ? "Sin resultados" : `${from}–${to} de ${total} registros`}
       </p>
       <div className="flex items-center gap-2">
         <Button

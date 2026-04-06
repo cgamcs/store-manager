@@ -6,14 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+import { DataTable } from "@/components/ui/data-table"
+import type { ColumnDef } from "@tanstack/react-table"
 import {
   Dialog,
   DialogContent,
@@ -224,7 +218,70 @@ export default function CategoriasClient({
     })
   }
 
-  // ── Render 
+  // ── Columns ─
+  const columns: ColumnDef<CategoriaDB>[] = [
+    {
+      accessorKey: "nombre",
+      header: "Nombre",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-linear-to-br from-primary/10 to-accent/10 flex items-center justify-center shrink-0">
+            <LayoutGrid className="w-4 h-4 text-primary" />
+          </div>
+          <span className="font-medium text-foreground">{row.original.nombre}</span>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "margen_ganancia",
+      header: "Margen de ganancia",
+      cell: ({ row }) => (
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-semibold bg-[oklch(0.6_0.15_145)]/10 text-[oklch(0.45_0.15_145)]">
+          <Percent className="w-3 h-3" />
+          {row.original.margen_ganancia}%
+        </span>
+      ),
+    },
+    {
+      accessorKey: "productCount",
+      header: "Productos",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Package className="w-4 h-4 shrink-0" />
+          <span>
+            {row.original.productCount}{" "}
+            {row.original.productCount === 1 ? "producto" : "productos"}
+          </span>
+        </div>
+      ),
+    },
+    {
+      id: "acciones",
+      header: () => <span className="block text-center">Acciones</span>,
+      cell: ({ row }) => (
+        <div className="flex items-center justify-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-lg h-8 w-8"
+            onClick={() => openEditDialog(row.original)}
+          >
+            <Edit className="w-4 h-4 text-muted-foreground" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-lg h-8 w-8 hover:text-destructive hover:bg-destructive/10"
+            onClick={() => openDeleteDialog(row.original)}
+          >
+            <Trash2 className="w-4 h-4 text-muted-foreground" />
+          </Button>
+        </div>
+      ),
+    },
+  ]
+
+  // ── Render
   return (
     <div className="space-y-6">
 
@@ -376,97 +433,12 @@ export default function CategoriasClient({
       </div>
 
       {/* Data Table */}
-      <Card className="rounded-2xl border-border/50 shadow-lg overflow-hidden">
+      <Card className="rounded-2xl border-border/50 shadow-lg">
         <CardHeader className="pb-0">
           <CardTitle className="text-foreground">Catálogo de Categorías</CardTitle>
         </CardHeader>
-        <CardContent className="p-0 mt-4">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border/50 hover:bg-transparent">
-                <TableHead className="pl-6 text-muted-foreground font-medium">Nombre</TableHead>
-                <TableHead className="text-muted-foreground font-medium">Margen de ganancia</TableHead>
-                <TableHead className="text-muted-foreground font-medium">Productos</TableHead>
-                <TableHead className="text-center text-muted-foreground font-medium pr-6">
-                  Acciones
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredCategorias.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={4}
-                    className="text-center py-12 text-muted-foreground"
-                  >
-                    No se encontraron categorías.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredCategorias.map((categoria) => (
-                  <TableRow
-                    key={categoria.id}
-                    className="border-border/30 hover:bg-muted/30 transition-colors"
-                  >
-                    {/* Nombre */}
-                    <TableCell className="pl-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-linear-to-br from-primary/10 to-accent/10 flex items-center justify-center shrink-0">
-                          <LayoutGrid className="w-4 h-4 text-primary" />
-                        </div>
-                        <span className="font-medium text-foreground">
-                          {categoria.nombre}
-                        </span>
-                      </div>
-                    </TableCell>
-
-                    {/* Margen */}
-                    <TableCell className="py-4">
-                      <div className="flex items-center gap-2">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-semibold bg-[oklch(0.6_0.15_145)]/10 text-[oklch(0.45_0.15_145)]">
-                          <Percent className="w-3 h-3" />
-                          {categoria.margen_ganancia}%
-                        </span>
-                      </div>
-                    </TableCell>
-
-                    {/* Productos asociados */}
-                    <TableCell className="py-4">
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Package className="w-4 h-4 shrink-0" />
-                        <span>
-                          {categoria.productCount}{" "}
-                          {categoria.productCount === 1 ? "producto" : "productos"}
-                        </span>
-                      </div>
-                    </TableCell>
-
-                    {/* Acciones */}
-                    <TableCell className="py-4 pr-6">
-                      <div className="flex items-center justify-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="rounded-lg h-8 w-8"
-                          onClick={() => openEditDialog(categoria)}
-                        >
-                          <Edit className="w-4 h-4 text-muted-foreground" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="rounded-lg h-8 w-8 hover:text-destructive hover:bg-destructive/10"
-                          onClick={() => openDeleteDialog(categoria)}
-                        >
-                          <Trash2 className="w-4 h-4 text-muted-foreground" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+        <CardContent className="pt-4">
+          <DataTable columns={columns} data={filteredCategorias} pageSize={10} />
         </CardContent>
       </Card>
     </div>
