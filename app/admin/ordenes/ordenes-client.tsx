@@ -810,7 +810,7 @@ export default function OrdenesClient({
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="rounded-2xl border-border/50 shadow-lg">
+        <Card className="rounded-2xl -py-6 border-border/50 shadow-lg">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-linear-to-br from-primary/20 to-accent/20 flex items-center justify-center">
               <ShoppingCart className="w-6 h-6 text-primary" />
@@ -822,7 +822,7 @@ export default function OrdenesClient({
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl border-border/50 shadow-lg">
+        <Card className="rounded-2xl -py-6 border-border/50 shadow-lg">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-linear-to-br from-[oklch(0.75_0.15_75)]/20 to-[oklch(0.75_0.15_75)]/10 flex items-center justify-center">
               <Clock className="w-6 h-6 text-[oklch(0.6_0.15_75)]" />
@@ -836,7 +836,7 @@ export default function OrdenesClient({
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl border-border/50 shadow-lg">
+        <Card className="rounded-2xl -py-6 border-border/50 shadow-lg">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-linear-to-br from-[oklch(0.6_0.15_145)]/20 to-[oklch(0.6_0.15_145)]/10 flex items-center justify-center">
               <CheckCircle2 className="w-6 h-6 text-[oklch(0.5_0.15_145)]" />

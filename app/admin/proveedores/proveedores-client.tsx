@@ -598,7 +598,7 @@ export default function ProveedoresClient({
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="rounded-2xl border-border/50 shadow-lg">
+        <Card className="rounded-2xl -py-6 border-border/50 shadow-lg">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-linear-to-br from-primary/20 to-accent/20 flex items-center justify-center">
               <Truck className="w-6 h-6 text-primary" />
@@ -609,7 +609,7 @@ export default function ProveedoresClient({
             </div>
           </CardContent>
         </Card>
-        <Card className="rounded-2xl border-border/50 shadow-lg">
+        <Card className="rounded-2xl -py-6 border-border/50 shadow-lg">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-linear-to-br from-[oklch(0.6_0.15_145)]/20 to-[oklch(0.6_0.15_145)]/10 flex items-center justify-center">
               <Building className="w-6 h-6 text-[oklch(0.5_0.15_145)]" />
@@ -620,7 +620,7 @@ export default function ProveedoresClient({
             </div>
           </CardContent>
         </Card>
-        <Card className="rounded-2xl border-border/50 shadow-lg">
+        <Card className="rounded-2xl -py-6 border-border/50 shadow-lg">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-linear-to-br from-[oklch(0.65_0.18_35)]/20 to-[oklch(0.65_0.18_35)]/10 flex items-center justify-center">
               <Mail className="w-6 h-6 text-[oklch(0.55_0.18_35)]" />
