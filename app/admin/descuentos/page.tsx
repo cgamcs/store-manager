@@ -402,7 +402,7 @@ export default function DescuentosPage() {
         {filteredDescuentos.map(descuento => {
           const productNames = getProductNames(descuento.productos_ids)
           return (
-            <Card key={descuento.id} className={`rounded-2xl border-border/50 shadow-lg transition-all ${descuento.activo ? '' : 'opacity-60'}`}>
+            <Card key={descuento.id} className={`rounded-2xl -py-6 border-border/50 shadow-lg transition-all ${descuento.activo ? '' : 'opacity-60'}`}>
               <CardContent className="p-0">
                 <div className={`p-4 rounded-t-2xl bg-linear-to-r ${descuento.activo ? 'from-primary/10 to-accent/10' : 'from-muted to-muted/80'}`}>
                   <div className="flex items-center justify-between mb-2">
