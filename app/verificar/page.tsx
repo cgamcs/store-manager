@@ -1,6 +1,6 @@
 "use client"
 
-import { useActionState, useState, useEffect, useRef } from "react"
+import { useActionState, useState, useEffect, useRef, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -10,7 +10,7 @@ import { verifyEmail, resendVerificationEmail, type VerifyState } from "@/app/li
 
 const initialState: VerifyState = {}
 
-export default function VerificarPage() {
+function VerificarContent() {
   const searchParams = useSearchParams()
   const correo = searchParams.get("correo") ?? ""
 
@@ -172,5 +172,13 @@ export default function VerificarPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function VerificarPage() {
+  return (
+    <Suspense>
+      <VerificarContent />
+    </Suspense>
   )
 }
