@@ -232,13 +232,17 @@ export default function OrdenesClient({
         if (field === "cantidad" || field === "piezasPorUnidad") {
           return { ...item, [field]: parseInt(value as string) || 1 }
         }
+        if (field === "unidad" && value === "pieza") {
+          return { ...item, unidad: "pieza", piezasPorUnidad: 1 }
+        }
         return { ...item, [field]: value }
       })
     )
   }
 
   const total = orderItems.reduce(
-    (acc, item) => acc + item.cantidad * item.precioCompra,
+    (acc, item) =>
+      acc + item.cantidad * (item.unidad === "pieza" ? 1 : item.piezasPorUnidad) * item.precioCompra,
     0
   )
 
@@ -576,7 +580,7 @@ export default function OrdenesClient({
                             </Select>
                           </div>
 
-                          <div className="grid grid-cols-3 gap-3">
+                          <div className={`grid gap-3 ${item.unidad === "pieza" ? "grid-cols-2" : "grid-cols-3"}`}>
                             <div>
                               <Label className="text-xs text-muted-foreground mb-1.5 block">Cantidad</Label>
                               <Input
@@ -603,16 +607,18 @@ export default function OrdenesClient({
                                 </SelectContent>
                               </Select>
                             </div>
-                            <div>
-                              <Label className="text-xs text-muted-foreground mb-1.5 block">Pzas por unidad</Label>
-                              <Input
-                                type="number"
-                                min="1"
-                                value={item.piezasPorUnidad}
-                                onChange={(e) => updateOrderItem(index, "piezasPorUnidad", e.target.value)}
-                                className="h-10 rounded-lg"
-                              />
-                            </div>
+                            {item.unidad !== "pieza" && (
+                              <div>
+                                <Label className="text-xs text-muted-foreground mb-1.5 block">Pzas por unidad</Label>
+                                <Input
+                                  type="number"
+                                  min="1"
+                                  value={item.piezasPorUnidad}
+                                  onChange={(e) => updateOrderItem(index, "piezasPorUnidad", e.target.value)}
+                                  className="h-10 rounded-lg"
+                                />
+                              </div>
+                            )}
                           </div>
 
                           <div className="grid grid-cols-3 gap-3">
@@ -656,12 +662,20 @@ export default function OrdenesClient({
                           {item.productoId > 0 && (
                             <div className="flex items-center justify-between pt-2 border-t border-border/30 text-xs text-muted-foreground">
                               <span>
-                                {item.cantidad} {item.unidad}(s) × {item.piezasPorUnidad} pzas =&nbsp;
-                                <span className="font-medium text-foreground">{item.cantidad * item.piezasPorUnidad} pzas totales</span>
+                                {item.unidad === "pieza" ? (
+                                  <span className="font-medium text-foreground">{item.cantidad} pzas totales</span>
+                                ) : (
+                                  <>
+                                    {item.cantidad} {item.unidad}(s) × {item.piezasPorUnidad} pzas =&nbsp;
+                                    <span className="font-medium text-foreground">{item.cantidad * item.piezasPorUnidad} pzas totales</span>
+                                  </>
+                                )}
                               </span>
                               <span>
                                 Subtotal:&nbsp;
-                                <span className="font-semibold text-foreground">${(item.cantidad * item.precioCompra).toFixed(2)}</span>
+                                <span className="font-semibold text-foreground">
+                                  ${(item.cantidad * (item.unidad === "pieza" ? 1 : item.piezasPorUnidad) * item.precioCompra).toFixed(2)}
+                                </span>
                               </span>
                             </div>
                           )}
@@ -678,7 +692,7 @@ export default function OrdenesClient({
               {orderItems.length > 0 && (
                 <div className="flex items-center justify-between">
                   <div className="text-sm text-muted-foreground">
-                    {orderItems.length} producto(s) · {orderItems.reduce((a, i) => a + i.cantidad * i.piezasPorUnidad, 0)} pzas totales
+                    {orderItems.length} producto(s) · {orderItems.reduce((a, i) => a + i.cantidad * (i.unidad === "pieza" ? 1 : i.piezasPorUnidad), 0)} pzas totales
                   </div>
                   <div className="text-right">
                     <span className="text-xs text-muted-foreground block">Total compra</span>
