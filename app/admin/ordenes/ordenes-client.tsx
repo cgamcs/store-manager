@@ -580,7 +580,7 @@ export default function OrdenesClient({
                             </Select>
                           </div>
 
-                          <div className={`grid gap-3 ${item.unidad === "pieza" ? "grid-cols-2" : "grid-cols-3"}`}>
+                          <div className="grid gap-3 grid-cols-3">
                             <div>
                               <Label className="text-xs text-muted-foreground mb-1.5 block">Cantidad</Label>
                               <Input
@@ -597,7 +597,7 @@ export default function OrdenesClient({
                                 value={item.unidad}
                                 onValueChange={(v) => updateOrderItem(index, "unidad", v)}
                               >
-                                <SelectTrigger className="h-10 rounded-lg">
+                                <SelectTrigger className="h-10 rounded-lg w-full">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
