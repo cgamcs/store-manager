@@ -461,15 +461,15 @@ export default function OrdenesClient({
                 </div>
 
                 <Select value={selectedProveedor} onValueChange={handleProveedorChange}>
-                  <SelectTrigger className="h-11 rounded-xl">
+                  <SelectTrigger className="h-auto rounded-xl">
                     <SelectValue placeholder="Seleccionar proveedor" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="h-auto">
                     {initialProveedores.map((p) => (
-                      <SelectItem key={p.id} value={p.id.toString()}>
-                        <div className="flex flex-col">
+                      <SelectItem key={p.id} value={p.id.toString()} className="group h-auto">
+                        <div className="flex flex-col text-left">
                           <span className="font-medium">{p.nombreComercial}</span>
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-xs text-muted-foreground group-data-highlighted:text-white/80">
                             Entrega: {p.tiempoEntregaDias} días · Min: ${toNum(p.cantidadMinimaOrden).toLocaleString()}
                           </span>
                         </div>
