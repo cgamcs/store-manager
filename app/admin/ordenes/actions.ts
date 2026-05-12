@@ -71,7 +71,7 @@ export async function createOrden(data: unknown) {
 
   const { proveedorId, detalles } = parsed.data
   const total = detalles.reduce(
-    (acc, d) => acc + d.precioCompra * d.cantidad,
+    (acc, d) => acc + d.precioCompra * d.cantidad * (d.piezasPorUnidad ?? 1),
     0
   )
 

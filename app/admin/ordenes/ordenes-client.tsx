@@ -16,6 +16,12 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet"
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -117,7 +123,6 @@ type OrderItem = {
   unidad: typeof unidades[number]
   piezasPorUnidad: number
   precioCompra: number
-  precioVenta: number
   fechaCaducidad: string
 }
 
@@ -125,9 +130,6 @@ function toNum(v: number | string): number {
   return typeof v === "string" ? parseFloat(v) : v
 }
 
-function calcSuggestedPrice(precioCompra: number, margen: number): number {
-  return parseFloat((precioCompra * (1 + margen / 100)).toFixed(2))
-}
 
 export default function OrdenesClient({
   initialOrdenes,
@@ -145,9 +147,9 @@ export default function OrdenesClient({
   const [isDialogOpen, setIsDialogOpen]             = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen]     = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [isPriceConfirmOpen, setIsPriceConfirmOpen] = useState(false)
+  const [isResumenOpen, setIsResumenOpen]           = useState(false)
   const [selectedOrden, setSelectedOrden]           = useState<OrdenDB | null>(null)
-  const [pendingItemIndex, setPendingItemIndex]     = useState<number | null>(null)
+  const [resumenOrden, setResumenOrden]             = useState<OrdenDB | null>(null)
   const [selectedProveedor, setSelectedProveedor]   = useState("")
   const [editEstado, setEditEstado]                 = useState<EstadoOrden>("pendiente")
   const [orderItems, setOrderItems]                 = useState<OrderItem[]>([])
@@ -183,7 +185,6 @@ export default function OrdenesClient({
         unidad: "pieza",
         piezasPorUnidad: 1,
         precioCompra: 0,
-        precioVenta: 0,
         fechaCaducidad: "",
       },
     ])
@@ -202,7 +203,6 @@ export default function OrdenesClient({
           const product = productosDelProveedor.find((p) => p.id === Number(value))
           if (product) {
             const margen = toNum(product.categoria.porcentajeGanancia)
-            const precioSugerido = calcSuggestedPrice(toNum(product.precioCompra), margen)
             return {
               ...item,
               productoId: Number(value),
@@ -211,23 +211,11 @@ export default function OrdenesClient({
               categoriaNombre: product.categoria.nombre,
               categoriaMargen: margen,
               precioCompra: toNum(product.precioCompra),
-              precioVenta: precioSugerido,
             }
           }
         }
         if (field === "precioCompra") {
-          const newPrecio = parseFloat(value as string) || 0
-          const precioSugerido = calcSuggestedPrice(newPrecio, item.categoriaMargen)
-          return { ...item, precioCompra: newPrecio, precioVenta: precioSugerido }
-        }
-        if (field === "precioVenta") {
-          const newPrecio = parseFloat(value as string) || 0
-          const precioSugerido = calcSuggestedPrice(item.precioCompra, item.categoriaMargen)
-          if (newPrecio !== precioSugerido) {
-            setPendingItemIndex(index)
-            setIsPriceConfirmOpen(true)
-          }
-          return { ...item, precioVenta: newPrecio }
+          return { ...item, precioCompra: parseFloat(value as string) || 0 }
         }
         if (field === "cantidad" || field === "piezasPorUnidad") {
           return { ...item, [field]: parseInt(value as string) || 1 }
@@ -263,7 +251,7 @@ export default function OrdenesClient({
           unidad: item.unidad,
           piezasPorUnidad: item.piezasPorUnidad,
           precioCompra: item.precioCompra,
-          precioVenta: item.precioVenta || null,
+          precioVenta: null,
           fechaCaducidad: item.fechaCaducidad || null,
         })),
       })
@@ -294,6 +282,11 @@ export default function OrdenesClient({
     })
   }
 
+  const openResumen = (orden: OrdenDB) => {
+    setResumenOrden(orden)
+    setIsResumenOpen(true)
+  }
+
   const openDeleteDialog = (orden: OrdenDB) => {
     setSelectedOrden(orden)
     setIsDeleteDialogOpen(true)
@@ -314,9 +307,12 @@ export default function OrdenesClient({
       accessorKey: "id",
       header: "ID",
       cell: ({ row }) => (
-        <span className="font-mono text-sm text-foreground">
+        <button
+          onClick={() => openResumen(row.original)}
+          className="font-mono text-sm hover:underline underline-offset-2 cursor-pointer"
+        >
           #{row.original.id.toString().padStart(4, "0")}
-        </span>
+        </button>
       ),
     },
     {
@@ -361,11 +357,17 @@ export default function OrdenesClient({
     {
       accessorKey: "total",
       header: () => <span className="block text-right">Total</span>,
-      cell: ({ row }) => (
-        <span className="block text-right font-bold text-foreground">
-          ${toNum(row.original.total).toLocaleString("es-MX")}
-        </span>
-      ),
+      cell: ({ row }) => {
+        const total = row.original.detalles.reduce(
+          (acc, d) => acc + toNum(d.precioCompra) * d.cantidad * d.piezasPorUnidad,
+          0
+        )
+        return (
+          <span className="block text-right font-bold text-foreground">
+            ${total.toFixed(2)}
+          </span>
+        )
+      },
     },
     {
       id: "acciones",
@@ -621,7 +623,7 @@ export default function OrdenesClient({
                             )}
                           </div>
 
-                          <div className="grid grid-cols-3 gap-3">
+                          <div className="grid grid-cols-2 gap-3">
                             <div>
                               <Label className="text-xs text-muted-foreground mb-1.5 block">Precio compra</Label>
                               <div className="relative">
@@ -631,19 +633,6 @@ export default function OrdenesClient({
                                   step="0.01"
                                   value={item.precioCompra}
                                   onChange={(e) => updateOrderItem(index, "precioCompra", e.target.value)}
-                                  className="h-10 rounded-lg pl-7"
-                                />
-                              </div>
-                            </div>
-                            <div>
-                              <Label className="text-xs text-muted-foreground mb-1.5 block">Precio venta</Label>
-                              <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
-                                <Input
-                                  type="number"
-                                  step="0.01"
-                                  value={item.precioVenta}
-                                  onChange={(e) => updateOrderItem(index, "precioVenta", e.target.value)}
                                   className="h-10 rounded-lg pl-7"
                                 />
                               </div>
@@ -712,41 +701,7 @@ export default function OrdenesClient({
         </Dialog>
       </div>
 
-      {/* Price Confirmation Dialog */}
-      <AlertDialog open={isPriceConfirmOpen} onOpenChange={setIsPriceConfirmOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-[oklch(0.6_0.15_75)]" />
-              Confirmar precio de venta
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              El precio de venta es diferente al sugerido por la categoría. ¿Deseas mantenerlo?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => {
-              if (pendingItemIndex !== null) {
-                setOrderItems((prev) =>
-                  prev.map((item, i) =>
-                    i !== pendingItemIndex ? item
-                      : { ...item, precioVenta: calcSuggestedPrice(item.precioCompra, item.categoriaMargen) }
-                  )
-                )
-              }
-              setPendingItemIndex(null)
-            }}>
-              Usar sugerido
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => { setIsPriceConfirmOpen(false); setPendingItemIndex(null) }}
-              className="bg-primary"
-            >
-              Mantener ajuste
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+
 
       {/* Edit Order Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={(open) => { setIsEditDialogOpen(open); if (!open) setError(null) }}>
@@ -821,6 +776,94 @@ export default function OrdenesClient({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Resumen Sheet */}
+      <Sheet open={isResumenOpen} onOpenChange={setIsResumenOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-2xl flex flex-col p-0 gap-0">
+          <SheetHeader className="px-6 pt-6 pb-4 border-b border-border/50 shrink-0">
+            <SheetTitle className="text-xl font-bold text-foreground flex items-center gap-2">
+              <Package className="w-5 h-5 text-primary" />
+              Orden #{resumenOrden?.id.toString().padStart(4, "0")}
+            </SheetTitle>
+            {resumenOrden && (
+              <div className="flex flex-wrap items-center gap-3 mt-1 text-sm text-muted-foreground">
+                <div className="flex items-center gap-1.5">
+                  <Truck className="w-4 h-4" />
+                  <span>{resumenOrden.proveedor.nombreComercial}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Calendar className="w-4 h-4" />
+                  <span>{new Date(resumenOrden.fechaOrden).toLocaleDateString("es-MX")}</span>
+                </div>
+                {(() => {
+                  const status = statusColors[resumenOrden.estado] ?? statusColors.pendiente
+                  const StatusIcon = status.icon
+                  return (
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${status.bg} ${status.text}`}>
+                      <StatusIcon className="w-3.5 h-3.5" />
+                      <span className="capitalize">{resumenOrden.estado}</span>
+                    </span>
+                  )
+                })()}
+              </div>
+            )}
+          </SheetHeader>
+
+          <div className="overflow-y-auto flex-1 px-6 py-5">
+            {resumenOrden && (
+              resumenOrden.detalles.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-16">Sin productos registrados</p>
+              ) : (
+                <div className="rounded-xl border border-border/60 overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-muted/40 border-b border-border/40">
+                        <th className="text-left px-4 py-3 font-medium text-muted-foreground">Producto</th>
+                        <th className="text-center px-4 py-3 font-medium text-muted-foreground">Cantidad</th>
+                        <th className="text-center px-4 py-3 font-medium text-muted-foreground">Unidad</th>
+                        <th className="text-center px-4 py-3 font-medium text-muted-foreground">Pzas totales</th>
+                        <th className="text-right px-4 py-3 font-medium text-muted-foreground">P. compra</th>
+                        <th className="text-right px-4 py-3 font-medium text-muted-foreground">Subtotal</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border/30">
+                      {resumenOrden.detalles.map((d) => {
+                        const pzasTotal = d.cantidad * d.piezasPorUnidad
+                        const subtotal = toNum(d.precioCompra) * pzasTotal
+                        return (
+                          <tr key={d.id} className="hover:bg-muted/20 transition-colors">
+                            <td className="px-4 py-3 font-medium text-foreground">{d.producto.nombre}</td>
+                            <td className="px-4 py-3 text-center text-muted-foreground">{d.cantidad}</td>
+                            <td className="px-4 py-3 text-center capitalize text-muted-foreground">{d.unidad}</td>
+                            <td className="px-4 py-3 text-center text-muted-foreground">{pzasTotal}</td>
+                            <td className="px-4 py-3 text-right text-muted-foreground">${toNum(d.precioCompra).toFixed(2)}</td>
+                            <td className="px-4 py-3 text-right font-semibold text-foreground">${subtotal.toFixed(2)}</td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )
+            )}
+          </div>
+
+          {resumenOrden && resumenOrden.detalles.length > 0 && (
+            <div className="px-6 py-4 border-t border-border/50 bg-card shrink-0 flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">
+                {resumenOrden.detalles.length} producto(s) ·{" "}
+                {resumenOrden.detalles.reduce((a, d) => a + d.cantidad * d.piezasPorUnidad, 0)} pzas totales
+              </span>
+              <div className="text-right">
+                <span className="text-xs text-muted-foreground block">Total compra</span>
+                <span className="text-2xl font-bold text-primary">
+                  ${resumenOrden.detalles.reduce((a, d) => a + toNum(d.precioCompra) * d.cantidad * d.piezasPorUnidad, 0).toFixed(2)}
+                </span>
+              </div>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

@@ -43,7 +43,7 @@ export default function LoginPage() {
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIwOS0xLjc5MS00LTQtNHMtNCAxLjc5MS00IDQgMS43OTEgNCA0IDQgNC0xLjc5MSA0LTQiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-30" />
         <div className="relative z-10 flex flex-col justify-center items-center w-full p-12 text-white">
           <div className="flex items-center gap-4 mb-8">
-            <div className="w-20 h-20 rounded-3xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-2xl overflow-hidden">
+            <div className="w-40 h-40 rounded-3xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-2xl overflow-hidden">
               <img src="/icon.png" alt="Logotipo" />
             </div>
           </div>
