@@ -7,7 +7,8 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Eye, EyeOff, ShoppingCart, Lock, Mail } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Eye, EyeOff, ShoppingCart, Lock, Mail, AlertCircle } from "lucide-react"
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -15,23 +16,37 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setError(null)
 
-    const result = await signIn("credentials", {
-      correo: email,
-      contrasena: password,
-      redirect: false,
-      rememberMe: rememberMe ? "true" : "false",
-    })
+    try {
+      await signIn("credentials", {
+        correo: email,
+        contrasena: password,
+        redirect: false,
+        rememberMe: rememberMe ? "true" : "false",
+      })
+    } catch {
+      // NextAuth v5 lanza excepción en credenciales inválidas
+    }
 
-    if (result?.ok) {
+    try {
       const session = await getSession()
-      const rolId = (session?.user as { rolId?: number })?.rolId
-      router.push(rolId === 1 ? "/admin/dashboard" : "/pos")
+      if (session?.user) {
+        const rolId = (session.user as { rolId?: number })?.rolId
+        router.push(rolId === 1 ? "/admin/dashboard" : "/pos")
+      } else {
+        setError("Correo o contraseña incorrectos. Verifica tus datos e intenta de nuevo.")
+        setIsLoading(false)
+      }
+    } catch {
+      setError("Correo o contraseña incorrectos. Verifica tus datos e intenta de nuevo.")
+      setIsLoading(false)
     }
   }
 
@@ -70,6 +85,13 @@ export default function LoginPage() {
               <h2 className="text-2xl font-bold text-foreground mb-2">Bienvenido de vuelta</h2>
               <p className="text-muted-foreground">Ingresa tus credenciales para continuar</p>
             </div>
+
+            {error && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
