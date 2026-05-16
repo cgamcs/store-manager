@@ -18,6 +18,7 @@ export async function getProviders() {
   await requireAdmin()
   const proveedores = await prisma.proveedor.findMany({
     orderBy: { nombreComercial: "asc" },
+    include: { _count: { select: { productos: true, ordenes: true } } },
   })
   return JSON.parse(JSON.stringify(proveedores)).map((p: Record<string, unknown>) => ({
     ...p,
@@ -49,7 +50,10 @@ export async function createProvider(data: unknown) {
     return { error: "El RFC ya está registrado por otro proveedor" }
   }
 
-  const proveedor = await prisma.proveedor.create({ data: parsed.data })
+  const proveedor = await prisma.proveedor.create({
+    data: parsed.data,
+    include: { _count: { select: { productos: true, ordenes: true } } },
+  })
   revalidatePath("/admin/proveedores")
   return { data: JSON.parse(JSON.stringify(proveedor)) }
 }
@@ -81,6 +85,7 @@ export async function updateProvider(id: number, data: unknown) {
   const proveedor = await prisma.proveedor.update({
     where: { id },
     data: parsed.data,
+    include: { _count: { select: { productos: true, ordenes: true } } },
   })
   revalidatePath("/admin/proveedores")
   return { data: JSON.parse(JSON.stringify(proveedor)) }
@@ -88,6 +93,19 @@ export async function updateProvider(id: number, data: unknown) {
 
 export async function deleteProvider(id: number) {
   await requireAdmin()
+
+  const [productoCount, ordenCount] = await Promise.all([
+    prisma.producto.count({ where: { proveedorId: id } }),
+    prisma.ordenCompra.count({ where: { proveedorId: id } }),
+  ])
+
+  if (productoCount > 0 || ordenCount > 0) {
+    return {
+      ok: false,
+      error: "No se puede eliminar un proveedor con productos u órdenes de compra registradas.",
+    }
+  }
+
   await prisma.proveedor.delete({ where: { id } })
   revalidatePath("/admin/proveedores")
   return { ok: true }

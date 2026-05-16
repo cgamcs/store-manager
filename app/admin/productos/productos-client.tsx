@@ -74,6 +74,7 @@ type ProductoDB = {
   esMerma: boolean
   categoria: CategoriaDB
   proveedor: ProveedorDB
+  _count: { ventaDetalles: number; ordenDetalles: number }
 }
 
 type FormData = {
@@ -376,6 +377,7 @@ export default function ProductosClient({
 }) {
   const [productos, setProductos] = useState<ProductoDB[]>(initialProductos)
   const [loadingAction, setLoadingAction] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | undefined>()
 
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
@@ -401,22 +403,27 @@ export default function ProductosClient({
   // CREATE
   const handleCreate = async () => {
     setLoadingAction(true)
-    const result = await createProduct({
-      nombre: formData.nombre,
-      sku: formData.sku,
-      categoriaId: formData.categoriaId,
-      proveedorId: formData.proveedorId,
-      precioCompra: parseFloat(formData.precioCompra),
-      precioVenta: parseFloat(formData.precioVenta),
-      stockActual: parseInt(formData.stockActual),
-      stockMinimo: parseInt(formData.stockMinimo),
-    })
-    if (result.data) {
-      setProductos((prev) => [...prev, result.data!])
-      setIsDialogOpen(false)
-      resetForm()
+    try {
+      const result = await createProduct({
+        nombre: formData.nombre,
+        sku: formData.sku,
+        categoriaId: formData.categoriaId,
+        proveedorId: formData.proveedorId,
+        precioCompra: parseFloat(formData.precioCompra),
+        precioVenta: parseFloat(formData.precioVenta),
+        stockActual: parseInt(formData.stockActual),
+        stockMinimo: parseInt(formData.stockMinimo),
+      })
+      if (result.data) {
+        setProductos((prev) => [...prev, result.data!])
+        setIsDialogOpen(false)
+        resetForm()
+      }
+    } catch {
+      // error manejado por la UI — el botón se desbloquea en finally
+    } finally {
+      setLoadingAction(false)
     }
-    setLoadingAction(false)
   }
 
   // EDIT
@@ -438,41 +445,55 @@ export default function ProductosClient({
   const handleEdit = async () => {
     if (!selectedProducto) return
     setLoadingAction(true)
-    const result = await updateProduct(selectedProducto.id, {
-      nombre: formData.nombre,
-      sku: formData.sku,
-      categoriaId: formData.categoriaId,
-      proveedorId: formData.proveedorId,
-      precioCompra: parseFloat(formData.precioCompra),
-      precioVenta: parseFloat(formData.precioVenta),
-      stockActual: parseInt(formData.stockActual),
-      stockMinimo: parseInt(formData.stockMinimo),
-    })
-    if (result.data) {
-      setProductos((prev) => prev.map((p) => (p.id === result.data!.id ? result.data! : p)))
-      setIsEditDialogOpen(false)
-      setSelectedProducto(null)
-      resetForm()
+    try {
+      const result = await updateProduct(selectedProducto.id, {
+        nombre: formData.nombre,
+        sku: formData.sku,
+        categoriaId: formData.categoriaId,
+        proveedorId: formData.proveedorId,
+        precioCompra: parseFloat(formData.precioCompra),
+        precioVenta: parseFloat(formData.precioVenta),
+        stockActual: parseInt(formData.stockActual),
+        stockMinimo: parseInt(formData.stockMinimo),
+      })
+      if (result.data) {
+        setProductos((prev) => prev.map((p) => (p.id === result.data!.id ? result.data! : p)))
+        setIsEditDialogOpen(false)
+        setSelectedProducto(null)
+        resetForm()
+      }
+    } catch {
+      // error manejado por la UI — el botón se desbloquea en finally
+    } finally {
+      setLoadingAction(false)
     }
-    setLoadingAction(false)
   }
 
   // DELETE
   const openDelete = (producto: ProductoDB) => {
     setSelectedProducto(producto)
+    const hasRelations = producto._count.ventaDetalles > 0 || producto._count.ordenDetalles > 0
+    setDeleteError(hasRelations ? "Este producto tiene ventas u órdenes de compra registradas y no puede eliminarse." : undefined)
     setIsDeleteDialogOpen(true)
   }
 
   const handleDelete = async () => {
     if (!selectedProducto) return
     setLoadingAction(true)
-    const result = await deleteProduct(selectedProducto.id)
-    if (result.ok) {
-      setProductos((prev) => prev.filter((p) => p.id !== selectedProducto.id))
-      setIsDeleteDialogOpen(false)
-      setSelectedProducto(null)
+    try {
+      const result = await deleteProduct(selectedProducto.id)
+      if (result.ok) {
+        setProductos((prev) => prev.filter((p) => p.id !== selectedProducto.id))
+        setIsDeleteDialogOpen(false)
+        setSelectedProducto(null)
+      } else if (result.error) {
+        setDeleteError(result.error)
+      }
+    } catch {
+      setDeleteError("Ocurrió un error inesperado. Intenta de nuevo.")
+    } finally {
+      setLoadingAction(false)
     }
-    setLoadingAction(false)
   }
 
   const columns: ColumnDef<ProductoDB>[] = [
@@ -589,8 +610,14 @@ export default function ProductosClient({
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-lg h-8 w-8 hover:text-destructive hover:bg-destructive/10"
+            className="rounded-lg h-8 w-8 hover:text-destructive hover:bg-destructive/10 disabled:opacity-30 disabled:cursor-not-allowed"
             onClick={() => openDelete(row.original)}
+            disabled={row.original._count.ventaDetalles > 0 || row.original._count.ordenDetalles > 0}
+            title={
+              row.original._count.ventaDetalles > 0 || row.original._count.ordenDetalles > 0
+                ? "No se puede eliminar: tiene ventas u órdenes de compra"
+                : "Eliminar producto"
+            }
           >
             <Trash2 className="w-4 h-4 text-muted-foreground" />
           </Button>
@@ -687,7 +714,7 @@ export default function ProductosClient({
       </Dialog>
 
       {/* Delete Dialog */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={(open) => { setIsDeleteDialogOpen(open); if (!open) setDeleteError(undefined) }}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 text-destructive">
@@ -699,12 +726,15 @@ export default function ProductosClient({
               Esta acción no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
+          {deleteError && (
+            <p className="text-sm text-destructive px-1">{deleteError}</p>
+          )}
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-destructive hover:bg-destructive/90"
-              disabled={loadingAction}
+              disabled={loadingAction || !!deleteError}
             >
               Eliminar
             </AlertDialogAction>

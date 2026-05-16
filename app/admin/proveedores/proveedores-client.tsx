@@ -60,6 +60,7 @@ type ProveedorDB = {
   tiempoEntregaDias: number
   plazoPago: string
   metodosPago: string[]
+  _count: { productos: number; ordenes: number }
 }
 
 type ProveedorFormData = {
@@ -368,6 +369,7 @@ export default function ProveedoresClient({
   const [proveedores, setProveedores] = useState<ProveedorDB[]>(initialProveedores)
   const [loadingAction, setLoadingAction] = useState(false)
   const [actionError, setActionError] = useState<string | undefined>()
+  const [deleteError, setDeleteError] = useState<string | undefined>()
 
   const [searchQuery, setSearchQuery] = useState("")
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -481,19 +483,28 @@ export default function ProveedoresClient({
   // DELETE
   const openDelete = (proveedor: ProveedorDB) => {
     setSelectedProveedor(proveedor)
+    const hasRelations = proveedor._count.productos > 0 || proveedor._count.ordenes > 0
+    setDeleteError(hasRelations ? "Este proveedor tiene productos u órdenes de compra registradas y no puede eliminarse." : undefined)
     setIsDeleteDialogOpen(true)
   }
 
   const handleDelete = async () => {
     if (!selectedProveedor) return
     setLoadingAction(true)
-    const result = await deleteProvider(selectedProveedor.id)
-    if (result.ok) {
-      setProveedores((prev) => prev.filter((p) => p.id !== selectedProveedor.id))
-      setIsDeleteDialogOpen(false)
-      setSelectedProveedor(null)
+    try {
+      const result = await deleteProvider(selectedProveedor.id)
+      if (result.ok) {
+        setProveedores((prev) => prev.filter((p) => p.id !== selectedProveedor.id))
+        setIsDeleteDialogOpen(false)
+        setSelectedProveedor(null)
+      } else if (result.error) {
+        setDeleteError(result.error)
+      }
+    } catch {
+      setDeleteError("Ocurrió un error inesperado. Intenta de nuevo.")
+    } finally {
+      setLoadingAction(false)
     }
-    setLoadingAction(false)
   }
 
   return (
@@ -571,7 +582,7 @@ export default function ProveedoresClient({
       </Dialog>
 
       {/* Delete Dialog */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={(open) => { setIsDeleteDialogOpen(open); if (!open) setDeleteError(undefined) }}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 text-destructive">
@@ -580,15 +591,18 @@ export default function ProveedoresClient({
             </AlertDialogTitle>
             <AlertDialogDescription>
               ¿Estás seguro de que deseas eliminar a &quot;{selectedProveedor?.nombreComercial}&quot;?
-              Esta acción no se puede deshacer y los productos asociados quedarán sin proveedor.
+              Esta acción no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
+          {deleteError && (
+            <p className="text-sm text-destructive px-1">{deleteError}</p>
+          )}
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-destructive hover:bg-destructive/90"
-              disabled={loadingAction}
+              disabled={loadingAction || !!deleteError}
             >
               Eliminar
             </AlertDialogAction>
@@ -714,8 +728,14 @@ export default function ProveedoresClient({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="rounded-lg h-9 w-9 hover:text-destructive hover:bg-destructive/10"
+                    className="rounded-lg h-9 w-9 hover:text-destructive hover:bg-destructive/10 disabled:opacity-30 disabled:cursor-not-allowed"
                     onClick={() => openDelete(proveedor)}
+                    disabled={proveedor._count.productos > 0 || proveedor._count.ordenes > 0}
+                    title={
+                      proveedor._count.productos > 0 || proveedor._count.ordenes > 0
+                        ? "No se puede eliminar: tiene productos u órdenes de compra"
+                        : "Eliminar proveedor"
+                    }
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
