@@ -109,13 +109,14 @@ export async function createOrden(data: unknown) {
 }
 
 export async function updateOrdenEstado(id: number, data: unknown) {
-  await requireAdmin()
+  const user = await requireAdmin()
   const parsed = updateEstadoSchema.safeParse(data)
   if (!parsed.success) {
     return { error: "Estado inválido" }
   }
 
   const { estado } = parsed.data
+  const usuarioId = user.id ? Number(user.id) : undefined
 
   // If transitioning to "recibida", update stock and create FechaCaducidad records
   if (estado === "recibida") {
@@ -140,6 +141,17 @@ export async function updateOrdenEstado(id: number, data: unknown) {
         await tx.producto.update({
           where: { id: detalle.productoId },
           data: { stockActual: { increment: piezasTotal } },
+        })
+
+        // Registrar movimiento de inventario (compra)
+        await tx.movimientoInventario.create({
+          data: {
+            productoId: detalle.productoId,
+            cantidad: piezasTotal,
+            tipo: "compra",
+            usuarioId: usuarioId,
+            referencia: `orden:${id}`,
+          },
         })
 
         // Update precio_compra if different

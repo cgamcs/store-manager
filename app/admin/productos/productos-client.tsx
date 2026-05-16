@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useState, useEffect, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -43,11 +44,15 @@ import {
   DollarSign,
   TrendingUp,
   Barcode,
+  PencilRuler,
+  History,
 } from "lucide-react"
 import {
   createProduct,
   updateProduct,
   deleteProduct,
+  ajustarStock,
+  registrarMerma,
 } from "./actions"
 
 type CategoriaDB = {
@@ -385,8 +390,14 @@ export default function ProductosClient({
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isAdjustDialogOpen, setIsAdjustDialogOpen] = useState(false)
+  const [isMermaDialogOpen, setIsMermaDialogOpen] = useState(false)
   const [selectedProducto, setSelectedProducto] = useState<ProductoDB | null>(null)
   const [formData, setFormData] = useState<FormData>(emptyForm)
+  const [adjustCantidad, setAdjustCantidad] = useState("")
+  const [adjustMotivo, setAdjustMotivo] = useState("")
+  const [mermaCantidad, setMermaCantidad] = useState("")
+  const [mermaMotivo, setMermaMotivo] = useState("")
 
   const filteredProductos = useMemo(() => {
     return productos.filter((p) => {
@@ -496,6 +507,65 @@ export default function ProductosClient({
     }
   }
 
+  // ADJUST STOCK
+  const openAdjust = (producto: ProductoDB) => {
+    setSelectedProducto(producto)
+    setAdjustCantidad(producto.stockActual.toString())
+    setAdjustMotivo("")
+    setIsAdjustDialogOpen(true)
+  }
+
+  const handleAdjust = async () => {
+    if (!selectedProducto) return
+    setLoadingAction(true)
+    try {
+      const result = await ajustarStock({
+        productoId: selectedProducto.id,
+        nuevaCantidad: parseInt(adjustCantidad),
+        motivo: adjustMotivo,
+      })
+      if (result.ok) {
+        // Refresh by reloading the page
+        window.location.reload()
+      } else if (result.error) {
+        alert(result.error)
+      }
+    } catch {
+      alert("Ocurrió un error inesperado.")
+    } finally {
+      setLoadingAction(false)
+    }
+  }
+
+  // REGISTER MERMA
+  const openMerma = (producto: ProductoDB) => {
+    setSelectedProducto(producto)
+    setMermaCantidad("")
+    setMermaMotivo("")
+    setIsMermaDialogOpen(true)
+  }
+
+  const handleMerma = async () => {
+    if (!selectedProducto) return
+    setLoadingAction(true)
+    try {
+      const result = await registrarMerma({
+        productoId: selectedProducto.id,
+        cantidad: parseInt(mermaCantidad),
+        motivo: mermaMotivo,
+      })
+      if (result.ok) {
+        window.location.reload()
+      } else if (result.error) {
+        alert(result.error)
+      }
+    } catch {
+      alert("Ocurrió un error inesperado.")
+    } finally {
+      setLoadingAction(false)
+    }
+  }
+
   const columns: ColumnDef<ProductoDB>[] = [
     {
       accessorKey: "nombre",
@@ -599,6 +669,31 @@ export default function ProductosClient({
       header: () => <span className="block text-center">Acciones</span>,
       cell: ({ row }) => (
         <div className="flex items-center justify-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-lg h-8 w-8"
+            onClick={() => openAdjust(row.original)}
+            title="Ajustar stock"
+          >
+            <PencilRuler className="w-4 h-4 text-muted-foreground" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-lg h-8 w-8"
+            onClick={() => openMerma(row.original)}
+            title="Registrar merma"
+          >
+            <AlertTriangle className="w-4 h-4 text-muted-foreground" />
+          </Button>
+          <Link
+            href={`/admin/movimientos?productoId=${row.original.id}`}
+            className="rounded-lg h-8 w-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            title="Ver historial de movimientos"
+          >
+            <History className="w-4 h-4" />
+          </Link>
           <Button
             variant="ghost"
             size="icon"
@@ -741,6 +836,123 @@ export default function ProductosClient({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Adjust Stock Dialog */}
+      <Dialog
+        open={isAdjustDialogOpen}
+        onOpenChange={(open) => {
+          setIsAdjustDialogOpen(open)
+          if (!open) {
+            setSelectedProducto(null)
+            setAdjustCantidad("")
+            setAdjustMotivo("")
+          }
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl font-bold">
+              <PencilRuler className="w-5 h-5" />
+              Ajustar Stock
+            </DialogTitle>
+          </DialogHeader>
+          {selectedProducto && (
+            <div className="space-y-4 mt-4">
+              <div className="p-3 bg-muted rounded-xl">
+                <p className="font-medium text-foreground">{selectedProducto.nombre}</p>
+                <p className="text-sm text-muted-foreground">
+                  Stock actual: <span className="font-bold text-foreground">{selectedProducto.stockActual}</span>
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label className="font-medium">Nueva cantidad en stock</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  value={adjustCantidad}
+                  onChange={(e) => setAdjustCantidad(e.target.value)}
+                  className="h-11 rounded-xl"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="font-medium">Motivo del ajuste <span className="text-destructive">*</span></Label>
+                <Input
+                  placeholder="Ej: Inventario físico, corrección de conteo..."
+                  value={adjustMotivo}
+                  onChange={(e) => setAdjustMotivo(e.target.value)}
+                  className="h-11 rounded-xl"
+                />
+              </div>
+              <Button
+                className="w-full h-12 rounded-xl bg-linear-to-r from-primary to-accent text-primary-foreground"
+                onClick={handleAdjust}
+                disabled={loadingAction || !adjustCantidad || !adjustMotivo.trim()}
+              >
+                {loadingAction ? "Ajustando..." : "Confirmar Ajuste"}
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Register Merma Dialog */}
+      <Dialog
+        open={isMermaDialogOpen}
+        onOpenChange={(open) => {
+          setIsMermaDialogOpen(open)
+          if (!open) {
+            setSelectedProducto(null)
+            setMermaCantidad("")
+            setMermaMotivo("")
+          }
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl font-bold text-destructive">
+              <AlertTriangle className="w-5 h-5" />
+              Registrar Merma
+            </DialogTitle>
+          </DialogHeader>
+          {selectedProducto && (
+            <div className="space-y-4 mt-4">
+              <div className="p-3 bg-muted rounded-xl">
+                <p className="font-medium text-foreground">{selectedProducto.nombre}</p>
+                <p className="text-sm text-muted-foreground">
+                  Stock actual: <span className="font-bold text-foreground">{selectedProducto.stockActual}</span>
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label className="font-medium">Cantidad a dar de baja</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  max={selectedProducto.stockActual}
+                  value={mermaCantidad}
+                  onChange={(e) => setMermaCantidad(e.target.value)}
+                  className="h-11 rounded-xl"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="font-medium">Motivo de la merma <span className="text-destructive">*</span></Label>
+                <Input
+                  placeholder="Ej: Producto vencido, dañado, robo..."
+                  value={mermaMotivo}
+                  onChange={(e) => setMermaMotivo(e.target.value)}
+                  className="h-11 rounded-xl"
+                />
+              </div>
+              <Button
+                className="w-full h-12 rounded-xl bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                onClick={handleMerma}
+                disabled={loadingAction || !mermaCantidad || !mermaMotivo.trim()}
+              >
+                {loadingAction ? "Registrando..." : "Registrar Merma"}
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">

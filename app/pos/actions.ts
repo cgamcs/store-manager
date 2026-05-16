@@ -135,6 +135,17 @@ export async function registrarVenta(
           where: { id: item.productoId },
           data: { stockActual: { decrement: item.cantidad } },
         })
+
+        // Registrar movimiento de inventario
+        await tx.movimientoInventario.create({
+          data: {
+            productoId: item.productoId,
+            cantidad: -item.cantidad,
+            tipo: "venta",
+            usuarioId: cajeroId,
+            referencia: `venta:${venta.id}`,
+          },
+        })
       }
 
       return venta.id

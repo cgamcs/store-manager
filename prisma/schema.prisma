@@ -12,6 +12,14 @@ datasource db {
   provider = "postgresql"
 }
 
+enum TipoMovimiento {
+  venta
+  compra
+  ajuste
+  merma
+  inicial
+}
+
 model Rol {
   id       Int       @id @default(autoincrement())
   nombre   String
@@ -32,6 +40,7 @@ model Usuario {
 
   ventas       Venta[]
   ordenes      OrdenCompra[]
+  movimientos  MovimientoInventario[]
 }
 
 model Token {
@@ -105,6 +114,7 @@ model Producto {
   descuentos    DescuentoProducto[]
   ventaDetalles VentaDetalle[]
   ordenDetalles OrdenDetalle[]
+  movimientos   MovimientoInventario[]
 }
 
 model FechaCaducidad {
@@ -184,4 +194,22 @@ model OrdenDetalle {
 
   orden           OrdenCompra @relation(fields: [ordenId], references: [id], onDelete: Cascade)
   producto        Producto    @relation(fields: [productoId], references: [id])
+}
+
+model MovimientoInventario {
+  id          Int             @id @default(autoincrement())
+  productoId  Int
+  cantidad    Int             // positivo = entrada, negativo = salida
+  tipo        TipoMovimiento
+  motivo      String?         // razon del movimiento
+  usuarioId   Int?            // quien realizo el movimiento
+  fechaHora   DateTime        @default(now())
+  referencia  String?         // e.g. "venta:123", "orden:456"
+
+  producto    Producto        @relation(fields: [productoId], references: [id])
+  usuario     Usuario?        @relation(fields: [usuarioId], references: [id])
+
+  @@index([productoId, fechaHora])
+  @@index([tipo])
+  @@index([usuarioId])
 }
