@@ -24,8 +24,8 @@ export default async function MovimientosPage({
       initialProductos={productos}
       pagination={{ total, page, pageSize, totalPages }}
       initialFilters={{
-        productoId: params.productoId,
-        tipo: params.tipo,
+        productoId: params.productoId || undefined,
+        tipo: params.tipo || undefined,
         desde: params.desde,
         hasta: params.hasta,
       }}

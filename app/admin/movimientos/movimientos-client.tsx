@@ -72,8 +72,8 @@ export default function MovimientosClient({
   const [isPending, startTransition] = useTransition()
 
   const [filters, setFilters] = useState({
-    productoId: initialFilters.productoId || "",
-    tipo: initialFilters.tipo || "",
+    productoId: initialFilters.productoId || "all",
+    tipo: initialFilters.tipo || "all",
     desde: initialFilters.desde || "",
     hasta: initialFilters.hasta || "",
   })
@@ -81,8 +81,8 @@ export default function MovimientosClient({
   const applyFilters = () => {
     startTransition(() => {
       const params = new URLSearchParams()
-      if (filters.productoId) params.set("productoId", filters.productoId)
-      if (filters.tipo) params.set("tipo", filters.tipo)
+      if (filters.productoId && filters.productoId !== "all") params.set("productoId", filters.productoId)
+      if (filters.tipo && filters.tipo !== "all") params.set("tipo", filters.tipo)
       if (filters.desde) params.set("desde", filters.desde)
       if (filters.hasta) params.set("hasta", filters.hasta)
       params.set("page", "1")
@@ -99,11 +99,11 @@ export default function MovimientosClient({
   }
 
   const clearFilters = () => {
-    setFilters({ productoId: "", tipo: "", desde: "", hasta: "" })
+    setFilters({ productoId: "all", tipo: "all", desde: "", hasta: "" })
     router.push("/admin/movimientos")
   }
 
-  const hasActiveFilters = filters.productoId || filters.tipo || filters.desde || filters.hasta
+  const hasActiveFilters = (filters.productoId && filters.productoId !== "all") || (filters.tipo && filters.tipo !== "all") || filters.desde || filters.hasta
 
   return (
     <div className="space-y-6">
@@ -119,12 +119,12 @@ export default function MovimientosClient({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <div>
               <label className="text-sm font-medium text-muted-foreground mb-1 block">Producto</label>
-              <Select value={filters.productoId} onValueChange={(v) => setFilters((f) => ({ ...f, productoId: v }))}>
+              <Select value={filters.productoId} onValueChange={(v) => setFilters((f) => ({ ...f, productoId: v === "all" ? "" : v }))}>
                 <SelectTrigger className="h-10 rounded-xl">
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
                   {initialProductos.map((p) => (
                     <SelectItem key={p.id} value={p.id.toString()}>
                       {p.nombre}
@@ -136,12 +136,12 @@ export default function MovimientosClient({
 
             <div>
               <label className="text-sm font-medium text-muted-foreground mb-1 block">Tipo</label>
-              <Select value={filters.tipo} onValueChange={(v) => setFilters((f) => ({ ...f, tipo: v }))}>
+              <Select value={filters.tipo} onValueChange={(v) => setFilters((f) => ({ ...f, tipo: v === "all" ? "" : v }))}>
                 <SelectTrigger className="h-10 rounded-xl">
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
                   {Object.entries(TIPO_LABELS).map(([key, { label }]) => (
                     <SelectItem key={key} value={key}>
                       {label}
