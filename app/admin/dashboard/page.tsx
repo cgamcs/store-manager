@@ -20,6 +20,11 @@ import {
   subWeeks,
 } from "date-fns"
 import { Prisma } from "@/src/generated/prisma/client"
+import { money } from "@/lib/utils"
+
+// El dashboard lee vistas y agregados en vivo; sin esto Next lo prerenderiza
+// y muestra los números del momento del build.
+export const dynamic = "force-dynamic"
 
 function calcChange(current: number, previous: number): { label: string; trend: "up" | "down" } {
   if (previous === 0) return { label: current > 0 ? "+100%" : "0%", trend: "up" }
@@ -40,11 +45,22 @@ function calcChangeAbs(current: number, previous: number): { label: string; tren
   }
 }
 
-type TopProductoRaw = {
-  productoId: number
-  nombre: string
-  totalCantidad: bigint
-  totalGanancia: Prisma.Decimal
+type VentaCategoriaRaw = {
+  categoria_id: number
+  categoria_nombre: string
+  margen_ganancia: Prisma.Decimal
+  total_ventas: bigint
+  cantidad_total_unidades: bigint
+  ingreso_bruto_total: Prisma.Decimal
+  ganancia_estimada: Prisma.Decimal
+}
+
+type StockBajoRaw = {
+  producto_id: number
+  producto_nombre: string
+  stockActual: number
+  stockMinimo: number
+  deficit_stock: number
 }
 
 export default async function DashboardPage() {
@@ -65,7 +81,7 @@ export default async function DashboardPage() {
     ventasSemanaAnterior,
     productosVendidosHoy,
     productosVendidosAyer,
-    topProductos,
+    ventasPorCategoria,
     lowStockProducts,
     activePromotions,
     totalProductos,
@@ -96,23 +112,19 @@ export default async function DashboardPage() {
       where: { venta: { fechaHora: { gte: yesterdayStart, lte: yesterdayEnd } } },
       _sum: { cantidad: true },
     }),
-    prisma.$queryRaw<TopProductoRaw[]>`
-      SELECT
-        vd."productoId",
-        p.nombre,
-        SUM(vd.cantidad)::bigint AS "totalCantidad",
-        SUM(vd.cantidad * vd."precioUnitario") AS "totalGanancia"
-      FROM "VentaDetalle" vd
-      JOIN "Producto" p ON p.id = vd."productoId"
-      GROUP BY vd."productoId", p.nombre
-      ORDER BY SUM(vd.cantidad) DESC
-      LIMIT 5
+    // vista_ventas_por_categoria ya agrupa y calcula la ganancia estimada;
+    // aquí sólo se reordena para responder qué categoría deja más dinero.
+    prisma.$queryRaw<VentaCategoriaRaw[]>`
+      SELECT categoria_id, categoria_nombre, margen_ganancia, total_ventas,
+             cantidad_total_unidades, ingreso_bruto_total, ganancia_estimada
+      FROM vista_ventas_por_categoria
+      ORDER BY ganancia_estimada DESC
     `,
-    prisma.producto.findMany({
-      where: { stockActual: { lte: prisma.producto.fields.stockMinimo } },
-      select: { id: true, nombre: true, stockActual: true, stockMinimo: true },
-      orderBy: { stockActual: "asc" },
-    }),
+    // vista_productos_stock_bajo ya resuelve el filtro y el orden por déficit
+    prisma.$queryRaw<StockBajoRaw[]>`
+      SELECT producto_id, producto_nombre, "stockActual", "stockMinimo", deficit_stock
+      FROM vista_productos_stock_bajo
+    `,
     prisma.descuento.findMany({
       where: { activo: true },
       select: { id: true, nombre: true, porcentaje: true, fechaFin: true },
@@ -138,7 +150,7 @@ export default async function DashboardPage() {
   const stats = [
     {
       label: "Ventas Hoy",
-      value: `$${ventasHoyTotal.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`,
+      value: money(ventasHoyTotal),
       change: ventasHoyChange.label,
       trend: ventasHoyChange.trend,
       compareLabel: "vs ayer",
@@ -147,7 +159,7 @@ export default async function DashboardPage() {
     },
     {
       label: "Ventas Semana",
-      value: `$${ventasSemanaTotal.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`,
+      value: money(ventasSemanaTotal),
       change: ventasSemanaChange.label,
       trend: ventasSemanaChange.trend,
       compareLabel: "vs semana pasada",
@@ -165,7 +177,7 @@ export default async function DashboardPage() {
     },
     {
       label: "Ticket Promedio",
-      value: `$${ticketHoy.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`,
+      value: money(ticketHoy),
       change: ticketChange.label,
       trend: ticketChange.trend,
       compareLabel: "vs ayer",
@@ -173,10 +185,6 @@ export default async function DashboardPage() {
       color: "from-[oklch(0.75_0.15_75)] to-[oklch(0.7_0.12_85)]",
     },
   ]
-
-  const lowStockFiltered = lowStockProducts.filter(
-    (p) => p.stockActual <= p.stockMinimo
-  )
 
   return (
     <div className="space-y-6">
@@ -208,34 +216,41 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Selling Products */}
+        {/* Categorías más rentables — vista_ventas_por_categoria */}
         <Card className="rounded-2xl border-border/50 shadow-lg">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-foreground">
               <TrendingUp className="w-5 h-5 text-primary" />
-              Productos Más Vendidos
+              Categorías Más Rentables
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {topProductos.length === 0 ? (
+            {ventasPorCategoria.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <TrendingUp className="w-12 h-12 mx-auto mb-2 opacity-50" />
                 <p>Sin ventas registradas</p>
               </div>
             ) : (
               <div className="space-y-3">
-                {topProductos.map((product, i) => (
-                  <div key={product.productoId} className="flex items-center gap-4 p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors">
+                {ventasPorCategoria.map((categoria, i) => (
+                  <div key={categoria.categoria_id} className="flex items-center gap-4 p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors">
                     <div className="w-8 h-8 rounded-lg bg-linear-to-br from-primary/20 to-accent/20 flex items-center justify-center font-bold text-primary text-sm">
                       {i + 1}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-foreground truncate">{product.nombre}</p>
-                      <p className="text-sm text-muted-foreground">{Number(product.totalCantidad)} unidades</p>
+                      <p className="font-medium text-foreground truncate">{categoria.categoria_nombre}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {Number(categoria.total_ventas)} ventas · {Number(categoria.cantidad_total_unidades)} unidades · margen {Number(categoria.margen_ganancia)}%
+                      </p>
                     </div>
-                    <p className="font-bold text-foreground">
-                      ${Number(product.totalGanancia).toLocaleString("es-MX", { minimumFractionDigits: 2 })}
-                    </p>
+                    <div className="text-right shrink-0">
+                      <p className="font-bold text-[oklch(0.6_0.15_145)]">
+                        {money(categoria.ganancia_estimada)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        de {money(categoria.ingreso_bruto_total)}
+                      </p>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -252,20 +267,20 @@ export default async function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {lowStockFiltered.length === 0 ? (
+            {lowStockProducts.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <Package className="w-12 h-12 mx-auto mb-2 opacity-50" />
                 <p>No hay productos con stock bajo</p>
               </div>
             ) : (
               <div className="space-y-3">
-                {lowStockFiltered.slice(0, 5).map((product) => (
-                  <div key={product.id} className="flex items-center gap-4 p-3 rounded-xl bg-[oklch(0.75_0.15_75)]/10 border border-[oklch(0.75_0.15_75)]/20">
+                {lowStockProducts.slice(0, 5).map((product) => (
+                  <div key={product.producto_id} className="flex items-center gap-4 p-3 rounded-xl bg-[oklch(0.75_0.15_75)]/10 border border-[oklch(0.75_0.15_75)]/20">
                     <div className="w-10 h-10 rounded-xl bg-[oklch(0.75_0.15_75)]/20 flex items-center justify-center">
                       <AlertTriangle className="w-5 h-5 text-[oklch(0.6_0.15_75)]" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-foreground truncate">{product.nombre}</p>
+                      <p className="font-medium text-foreground truncate">{product.producto_nombre}</p>
                       <p className="text-sm text-muted-foreground">Mínimo: {product.stockMinimo}</p>
                     </div>
                     <div className="text-right">
@@ -331,7 +346,7 @@ export default async function DashboardPage() {
         </div>
         <div className="bg-card rounded-2xl p-4 border border-border/50 shadow-sm text-center">
           <AlertTriangle className="w-8 h-8 mx-auto mb-2 text-[oklch(0.75_0.15_75)]" />
-          <p className="text-2xl font-bold text-foreground">{lowStockFiltered.length}</p>
+          <p className="text-2xl font-bold text-foreground">{lowStockProducts.length}</p>
           <p className="text-sm text-muted-foreground">Productos bajo stock</p>
         </div>
         <div className="bg-card rounded-2xl p-4 border border-border/50 shadow-sm text-center">

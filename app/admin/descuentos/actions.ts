@@ -200,3 +200,38 @@ export async function deleteDescuento(id: number) {
   revalidatePath("/admin/descuentos")
   return { ok: true }
 }
+
+export async function writeOffExpiredProduct(productoId: number) {
+  await requireAdmin()
+  const session = await auth()
+  const usuarioId = session?.user?.id ? Number(session.user.id) : undefined
+
+  const product = await prisma.producto.findUnique({
+    where: { id: productoId },
+    select: { stockActual: true },
+  })
+
+  if (!product) return { error: "Producto no encontrado" }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.producto.update({
+      where: { id: productoId },
+      data: { stockActual: 0, esMerma: false },
+    })
+
+    if (product.stockActual > 0) {
+      await tx.movimientoInventario.create({
+        data: {
+          productoId,
+          cantidad: -product.stockActual,
+          tipo: "merma",
+          motivo: "Baja por caducidad",
+          usuarioId: usuarioId ?? null,
+        },
+      })
+    }
+  })
+
+  revalidatePath("/admin/descuentos")
+  return { ok: true }
+}

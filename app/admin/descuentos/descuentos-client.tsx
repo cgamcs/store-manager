@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -38,8 +39,9 @@ import {
   Info,
   Clock,
   CheckCircle2,
+  XCircle,
 } from "lucide-react"
-import { createDescuento, updateDescuento, toggleDescuento, deleteDescuento } from "./actions"
+import { createDescuento, updateDescuento, toggleDescuento, deleteDescuento, writeOffExpiredProduct } from "./actions"
 
 //  Tipos locales (la BD serializa Date → string vía JSON) ─
 
@@ -130,6 +132,15 @@ function getNearestExpiry(fechas: FechaCaducidadDB[]): Date | null {
 
 function toNum(v: string | number): number {
   return typeof v === "string" ? parseFloat(v) : v
+}
+
+function isExpired(product: ProductoMermaDB): boolean {
+  if (!product.fechasCaducidad.length) return false
+  const nearest = getNearestExpiry(product.fechasCaducidad)
+  if (!nearest) return false
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  return nearest < today
 }
 
 //  Formulario 
@@ -309,9 +320,13 @@ export default function DescuentosClient({
   initialDescuentos: DescuentoDB[]
   mermaProducts: ProductoMermaDB[]
 }) {
+  const router = useRouter()
   const [descuentos, setDescuentos] = useState<DescuentoDB[]>(initialDescuentos)
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+
+  const expiredProducts = useMemo(() => mermaProducts.filter(isExpired), [mermaProducts])
+  const nearExpiryProducts = useMemo(() => mermaProducts.filter((p) => !isExpired(p)), [mermaProducts])
 
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isEditOpen, setIsEditOpen] = useState(false)
@@ -325,6 +340,14 @@ export default function DescuentosClient({
   )
 
   const resetForm = () => setFormData(emptyForm)
+
+  // WRITE-OFF
+  const handleWriteOff = async (productoId: number) => {
+    setLoading(true)
+    const result = await writeOffExpiredProduct(productoId)
+    if (result.ok) router.refresh()
+    setLoading(false)
+  }
 
   // CREATE
   const handleCreate = async () => {
@@ -439,7 +462,7 @@ export default function DescuentosClient({
             <DescuentoForm
               formData={formData}
               setFormData={setFormData}
-              mermaProducts={mermaProducts}
+              mermaProducts={nearExpiryProducts}
               onSubmit={handleCreate}
               loading={loading}
             />
@@ -459,7 +482,7 @@ export default function DescuentosClient({
           <DescuentoForm
             formData={formData}
             setFormData={setFormData}
-            mermaProducts={mermaProducts}
+            mermaProducts={nearExpiryProducts}
             isEdit
             onSubmit={handleEdit}
             loading={loading}
@@ -523,15 +546,68 @@ export default function DescuentosClient({
               <AlertTriangle className="w-6 h-6 text-red-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-foreground">{mermaProducts.length}</p>
-              <p className="text-sm text-muted-foreground">Productos en merma</p>
+              <p className="text-2xl font-bold text-foreground">{nearExpiryProducts.length}</p>
+              <p className="text-sm text-muted-foreground">Próximos a vencer</p>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Panel de productos elegibles */}
-      {mermaProducts.length > 0 && (
+      {/* Panel de productos ya caducados — dar de baja */}
+      {expiredProducts.length > 0 && (
+        <Card className="rounded-2xl border-red-200 bg-red-50/50 shadow-lg dark:border-red-900/40 dark:bg-red-950/20">
+          <CardHeader className="grid-rows-none">
+            <CardTitle className="flex items-center gap-2 text-red-700 dark:text-red-400 text-base">
+              <XCircle className="w-5 h-5" />
+              Productos ya caducados — requieren baja de inventario
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-xs text-red-600 dark:text-red-400 mb-3">
+              Estos productos han superado su fecha de caducidad y no pueden venderse. Deben darse de baja para mantener el inventario correcto.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {expiredProducts.map((product) => {
+                const expiry = getNearestExpiry(product.fechasCaducidad)
+                return (
+                  <div
+                    key={product.id}
+                    className="flex items-center gap-3 p-3 bg-card rounded-xl border border-red-200/60 dark:border-red-800/40"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center shrink-0">
+                      <Package className="w-5 h-5 text-red-600 dark:text-red-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-foreground truncate text-sm">{product.nombre}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Stock: {product.stockActual} · ${toNum(product.precioVenta).toFixed(2)}
+                      </p>
+                      {expiry && (
+                        <p className="text-xs text-red-600 dark:text-red-400 flex items-center gap-1 mt-0.5">
+                          <XCircle className="w-3 h-3" />
+                          Venció: {formatDate(expiry.toISOString())}
+                        </p>
+                      )}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="shrink-0 text-red-600 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg text-xs"
+                      onClick={() => handleWriteOff(product.id)}
+                      disabled={loading}
+                    >
+                      Dar de baja
+                    </Button>
+                  </div>
+                )
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Panel de productos próximos a vencer — elegibles para descuento */}
+      {nearExpiryProducts.length > 0 && (
         <Card className="rounded-2xl border-amber-200 bg-amber-50/50 shadow-lg dark:border-amber-900/40 dark:bg-amber-950/20">
           <CardHeader className="grid-rows-none">
             <CardTitle className="flex items-center gap-2 text-amber-700 dark:text-amber-400 text-base">
@@ -541,7 +617,7 @@ export default function DescuentosClient({
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {mermaProducts.map((product) => {
+              {nearExpiryProducts.map((product) => {
                 const expiry = getNearestExpiry(product.fechasCaducidad)
                 return (
                   <div

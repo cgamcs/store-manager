@@ -669,7 +669,7 @@ export default function ProductosClient({
       header: () => <span className="block text-center">Acciones</span>,
       cell: ({ row }) => (
         <div className="flex items-center justify-center gap-1">
-          <Button
+          {/*<Button
             variant="ghost"
             size="icon"
             className="rounded-lg h-8 w-8"
@@ -693,7 +693,7 @@ export default function ProductosClient({
             title="Ver historial de movimientos"
           >
             <History className="w-4 h-4" />
-          </Link>
+          </Link>*/}
           <Button
             variant="ghost"
             size="icon"

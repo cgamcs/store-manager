@@ -109,16 +109,18 @@ export async function createOrden(data: unknown) {
 }
 
 export async function updateOrdenEstado(id: number, data: unknown) {
-  const user = await requireAdmin()
+  await requireAdmin()
   const parsed = updateEstadoSchema.safeParse(data)
   if (!parsed.success) {
     return { error: "Estado inválido" }
   }
 
   const { estado } = parsed.data
-  const usuarioId = user.id ? Number(user.id) : undefined
 
-  // If transitioning to "recibida", update stock and create FechaCaducidad records
+  // Al pasar a "recibida", el trigger trg_recibir_orden_compra
+  // (AFTER UPDATE ON "OrdenCompra") suma las piezas al stock, registra el
+  // MovimientoInventario y crea el lote en FechaCaducidad. Aquí sólo se cambia
+  // el estado y se sincroniza el precio de compra, que el trigger no toca.
   if (estado === "recibida") {
     const ordenActual = await prisma.ordenCompra.findUnique({
       where: { id },
@@ -131,54 +133,22 @@ export async function updateOrdenEstado(id: number, data: unknown) {
     }
 
     await prisma.$transaction(async (tx) => {
-      // Update order status
       await tx.ordenCompra.update({ where: { id }, data: { estado } })
 
       for (const detalle of ordenActual.detalles) {
-        const piezasTotal = detalle.cantidad * detalle.piezasPorUnidad
+        if (!detalle.precioCompra) continue
 
-        // Increment stock
-        await tx.producto.update({
+        const producto = await tx.producto.findUnique({
           where: { id: detalle.productoId },
-          data: { stockActual: { increment: piezasTotal } },
+          select: { precioCompra: true },
         })
-
-        // Registrar movimiento de inventario (compra)
-        await tx.movimientoInventario.create({
-          data: {
-            productoId: detalle.productoId,
-            cantidad: piezasTotal,
-            tipo: "compra",
-            usuarioId: usuarioId,
-            referencia: `orden:${id}`,
-          },
-        })
-
-        // Update precio_compra if different
-        if (detalle.precioCompra) {
-          const producto = await tx.producto.findUnique({
+        if (
+          producto &&
+          Number(producto.precioCompra) !== Number(detalle.precioCompra)
+        ) {
+          await tx.producto.update({
             where: { id: detalle.productoId },
-            select: { precioCompra: true },
-          })
-          if (
-            producto &&
-            Number(producto.precioCompra) !== Number(detalle.precioCompra)
-          ) {
-            await tx.producto.update({
-              where: { id: detalle.productoId },
-              data: { precioCompra: detalle.precioCompra },
-            })
-          }
-        }
-
-        // Create FechaCaducidad record if provided
-        if (detalle.fechaCaducidad) {
-          await tx.fechaCaducidad.create({
-            data: {
-              productoId: detalle.productoId,
-              fechaCaducidad: detalle.fechaCaducidad,
-              cantidad: piezasTotal,
-            },
+            data: { precioCompra: detalle.precioCompra },
           })
         }
       }

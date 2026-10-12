@@ -4,7 +4,17 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { DataTable } from "@/components/ui/data-table"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import type { ColumnDef } from "@tanstack/react-table"
+import type { RendimientoCajero } from "./actions"
+import { money } from "@/lib/utils"
 import {
   Sheet,
   SheetContent,
@@ -21,6 +31,7 @@ import {
   User,
   Clock,
   Filter,
+  Award,
 } from "lucide-react"
 
 type VentaDetalleDB = {
@@ -45,6 +56,7 @@ function toNum(v: number | string): number {
   return typeof v === "string" ? parseFloat(v) : v
 }
 
+
 function startOfDay(date: Date): Date {
   const d = new Date(date)
   d.setHours(0, 0, 0, 0)
@@ -55,7 +67,13 @@ function startOfMonth(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), 1)
 }
 
-export default function VentasClient({ initialVentas }: { initialVentas: VentaDB[] }) {
+export default function VentasClient({
+  initialVentas,
+  rendimiento,
+}: {
+  initialVentas: VentaDB[]
+  rendimiento: RendimientoCajero[]
+}) {
   const [searchQuery, setSearchQuery] = useState("")
   const [dateFrom, setDateFrom]       = useState("")
   const [dateTo, setDateTo]           = useState("")
@@ -245,6 +263,84 @@ export default function VentasClient({ initialVentas }: { initialVentas: VentaDB
           </CardContent>
         </Card>
       </div>
+
+      {/* Rendimiento de cajeros — vista_rendimiento_cajeros */}
+      <Card className="rounded-2xl border-border/50 shadow-lg">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-foreground">
+            <Award className="w-5 h-5 text-primary" />
+            Rendimiento de Cajeros
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {rendimiento.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <User className="w-12 h-12 mx-auto mb-2 opacity-50" />
+              <p>Ningún cajero tiene ventas registradas</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">#</TableHead>
+                    <TableHead>Cajero</TableHead>
+                    <TableHead>Turno</TableHead>
+                    <TableHead className="text-right">Ventas</TableHead>
+                    <TableHead className="text-right">Ingreso</TableHead>
+                    <TableHead className="text-right">Ticket prom.</TableHead>
+                    <TableHead className="text-right">Mínima</TableHead>
+                    <TableHead className="text-right">Máxima</TableHead>
+                    <TableHead className="text-right">Unidades</TableHead>
+                    <TableHead className="text-right">Días</TableHead>
+                    <TableHead className="text-right">Ventas/día</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rendimiento.map((cajero) => (
+                    <TableRow key={cajero.cajeroId}>
+                      <TableCell>
+                        <div
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${
+                            cajero.ranking === 1
+                              ? "bg-[oklch(0.75_0.15_75)]/20 text-[oklch(0.55_0.15_75)]"
+                              : "bg-muted text-muted-foreground"
+                          }`}
+                        >
+                          {cajero.ranking}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <p className="font-medium text-foreground">{cajero.nombre}</p>
+                        <p className="text-sm text-muted-foreground">{cajero.correo}</p>
+                      </TableCell>
+                      <TableCell className="capitalize text-muted-foreground">
+                        {cajero.turno ?? "—"}
+                      </TableCell>
+                      <TableCell className="text-right font-medium">{cajero.totalVentas}</TableCell>
+                      <TableCell className="text-right font-bold text-[oklch(0.5_0.15_145)]">
+                        {money(cajero.ingresoTotal)}
+                      </TableCell>
+                      <TableCell className="text-right">{money(cajero.ticketPromedio)}</TableCell>
+                      <TableCell className="text-right text-muted-foreground">
+                        {money(cajero.ventaMinima)}
+                      </TableCell>
+                      <TableCell className="text-right text-muted-foreground">
+                        {money(cajero.ventaMaxima)}
+                      </TableCell>
+                      <TableCell className="text-right">{cajero.unidadesTotales}</TableCell>
+                      <TableCell className="text-right text-muted-foreground">
+                        {cajero.diasConVentas}
+                      </TableCell>
+                      <TableCell className="text-right">{cajero.ventasPorDiaPromedio}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Tabla */}
       <Card className="rounded-2xl border-border/50 shadow-lg">

@@ -10,6 +10,8 @@ next.user-config.*
 # Environment variables
 .env*.local
 .env
+.atl
+tsconfig.tsbuildinfo
 
 # Common ignores
 node_modules

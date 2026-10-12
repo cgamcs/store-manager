@@ -98,7 +98,11 @@ export async function registrarVenta(
         data: { cajeroId, total },
       })
 
-      // 3. Crear VentaDetalles y reducir stock con lógica FEFO
+      // 3. Crear VentaDetalles y consumir lotes con lógica FEFO
+      //
+      // El stock del producto y el MovimientoInventario los maneja el trigger
+      // trg_descontar_stock_venta (AFTER INSERT ON "VentaDetalle"). No los
+      // toques aquí: duplicarlos descuenta el stock dos veces.
       for (const item of items) {
         await tx.ventaDetalle.create({
           data: {
@@ -129,23 +133,6 @@ export async function registrarVenta(
             restante = 0
           }
         }
-
-        // Actualizar stock general del producto
-        await tx.producto.update({
-          where: { id: item.productoId },
-          data: { stockActual: { decrement: item.cantidad } },
-        })
-
-        // Registrar movimiento de inventario
-        await tx.movimientoInventario.create({
-          data: {
-            productoId: item.productoId,
-            cantidad: -item.cantidad,
-            tipo: "venta",
-            usuarioId: cajeroId,
-            referencia: `venta:${venta.id}`,
-          },
-        })
       }
 
       return venta.id
