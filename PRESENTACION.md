@@ -195,12 +195,18 @@ stockActual, stockMinimo, esMerma, categoriaId, proveedorId
 ```
 id, codigo (unique), nombreComercial, razonSocial,
 rfc (unique, 13 chars), contacto, correo, telefono,
-cantidadMinimaOrden, tiempoEntregaDias, plazoPago, metodosPago[]
+cantidadMinimaOrden, tiempoEntregaDias, plazoPago
+```
+
+#### ProveedorMetodoPago
+```
+proveedorId, metodo   (PK compuesta; 1FN: antes era el arreglo metodosPago[])
 ```
 
 #### OrdenCompra
 ```
-id, proveedorId, usuarioId, fechaOrden, estado, total
+id, proveedorId, usuarioId, fechaOrden, estado
+(el total se deriva de OrdenDetalle; no se guarda)
 estados: "pendiente" → "enviada" → "recibida" | "cancelada"
 ```
 
@@ -248,17 +254,17 @@ Usuario ingresa correo + contraseña
           │
     Busca usuario en BD por correo
           │
+    bcryptjs.compare(password, hash)
+          │
     Verifica correoVerificado === true
+    (si no: error "verifica tu correo" y,
+     si el código expiró, reenvía el correo)
           │
     Cajero: verifica perfil activo
           │
     Genera JWT con { id, rolId, rememberMe }
           │
-    bcryptjs.compare(password, hash)
-          │
     proxy.ts evalúa ruta solicitada
-    (si no: error "verifica tu correo" y,
-     si el código expiró, reenvía el correo)
           │
     ┌─────┴──────────────────────────────────┐
     │                                        │
@@ -293,13 +299,13 @@ Sin embargo, el sistema sí implementa verificación de correo:
 Registro → Token 6 dígitos (expira 5 min) → Email → /verificar → cuenta activa
 ```
 
+Las cuentas que crea el administrador desde `/admin/usuarios` se guardan ya verificadas.
+
 ### Recuperación de contraseña
 
 ```
 /recuperar → ingresa correo → token 6 dígitos por email → /cambiar-password → nueva contraseña
 ```
-
-Las cuentas que crea el administrador desde `/admin/usuarios` se guardan ya verificadas.
 
 ### Seguridad en datos
 
@@ -488,14 +494,14 @@ Nuevo usuario se registra
     → correoVerificado se marca como true
 ```
 
+Si el usuario no verificó a tiempo e intenta iniciar sesión, el login se rechaza con un mensaje que pide verificar el correo y, si el código anterior ya expiró, se envía uno nuevo automáticamente.
+
 ### Recuperación de contraseña
 
 ```
 Usuario solicita recuperación en /recuperar
     → Se genera token de 6 dígitos
     → Expira en 5 minutos
-Si el usuario no verificó a tiempo e intenta iniciar sesión, el login se rechaza con un mensaje que pide verificar el correo y, si el código anterior ya expiró, se envía uno nuevo automáticamente.
-
     → Se envía al correo
     → Usuario ingresa token en /cambiar-password
     → Ingresa nueva contraseña (mín. 6 caracteres)

@@ -71,11 +71,6 @@ export async function createOrden(data: unknown) {
   }
 
   const { proveedorId, detalles } = parsed.data
-  const total = detalles.reduce(
-    (acc, d) => acc + d.precioCompra * d.cantidad * (d.piezasPorUnidad ?? 1),
-    0
-  )
-
   const usuarioId = parseInt(user.id ?? "0")
   if (!usuarioId) return { error: "No se pudo obtener el usuario" }
 
@@ -84,7 +79,6 @@ export async function createOrden(data: unknown) {
       proveedorId,
       usuarioId,
       estado: "pendiente",
-      total,
       detalles: {
         create: detalles.map((d) => ({
           productoId: d.productoId,
@@ -147,6 +141,12 @@ export async function updateOrdenEstado(id: number, data: unknown) {
         }
 
         for (const detalle of ordenActual.detalles) {
+          if (!detalle.precioCompra) continue
+
+          const producto = await tx.producto.findUnique({
+            where: { id: detalle.productoId },
+            select: { precioCompra: true },
+          })
           if (
             producto &&
             Number(producto.precioCompra) !== Number(detalle.precioCompra)
@@ -156,12 +156,6 @@ export async function updateOrdenEstado(id: number, data: unknown) {
               data: { precioCompra: detalle.precioCompra },
             })
           }
-          if (!detalle.precioCompra) continue
-
-          const producto = await tx.producto.findUnique({
-            where: { id: detalle.productoId },
-            select: { precioCompra: true },
-          })
         }
       })
     } catch (e) {

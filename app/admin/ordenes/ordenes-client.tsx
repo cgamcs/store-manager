@@ -108,7 +108,6 @@ type OrdenDB = {
   usuarioId: number
   fechaOrden: string
   estado: EstadoOrden
-  total: number | string
   proveedor: { id: number; nombreComercial: string; correo: string }
   detalles: DetalleDB[]
 }
@@ -355,7 +354,7 @@ export default function OrdenesClient({
       },
     },
     {
-      accessorKey: "total",
+      id: "total",
       header: () => <span className="block text-right">Total</span>,
       cell: ({ row }) => {
         const total = row.original.detalles.reduce(

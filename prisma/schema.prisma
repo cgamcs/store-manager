@@ -89,10 +89,19 @@ model Proveedor {
   cantidadMinimaOrden Decimal
   tiempoEntregaDias   Int
   plazoPago           String
-  metodosPago         String[]
 
+  metodosPago     ProveedorMetodoPago[]
   productos       Producto[]
   ordenes         OrdenCompra[]
+}
+
+model ProveedorMetodoPago {
+  proveedorId Int
+  metodo      String
+
+  proveedor   Proveedor @relation(fields: [proveedorId], references: [id], onDelete: Cascade)
+
+  @@id([proveedorId, metodo])
 }
 
 model Producto {
@@ -174,7 +183,6 @@ model OrdenCompra {
   usuarioId     Int
   fechaOrden    DateTime        @default(now())
   estado        String          @default("pendiente")
-  total         Decimal
 
   proveedor     Proveedor       @relation(fields: [proveedorId], references: [id])
   usuario       Usuario         @relation(fields: [usuarioId], references: [id])

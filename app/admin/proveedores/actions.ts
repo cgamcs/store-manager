@@ -7,6 +7,21 @@ import { revalidatePath } from "next/cache"
 
 const ROL_ADMIN = 1
 
+// Los métodos de pago viven en ProveedorMetodoPago (1FN); la UI sigue
+// trabajando con string[].
+const includeProveedor = {
+  _count: { select: { productos: true, ordenes: true } },
+  metodosPago: { select: { metodo: true } },
+} as const
+
+function toCliente(p: { metodosPago: { metodo: string }[] }) {
+  return { ...JSON.parse(JSON.stringify(p)), metodosPago: p.metodosPago.map((m) => m.metodo) }
+}
+
+function metodosCreate(metodos: string[]) {
+  return { create: [...new Set(metodos)].map((metodo) => ({ metodo })) }
+}
+
 async function requireAdmin() {
   const session = await auth()
   if (!session?.user || (session.user as { rolId?: number }).rolId !== ROL_ADMIN) {
@@ -18,15 +33,9 @@ export async function getProviders() {
   await requireAdmin()
   const proveedores = await prisma.proveedor.findMany({
     orderBy: { nombreComercial: "asc" },
-    include: { _count: { select: { productos: true, ordenes: true } } },
+    include: includeProveedor,
   })
-  return JSON.parse(JSON.stringify(proveedores)).map((p: Record<string, unknown>) => ({
-    ...p,
-    codigo: p.codigo ?? "",
-    cantidadMinimaOrden: p.cantidadMinimaOrden ?? 0,
-    tiempoEntregaDias: p.tiempoEntregaDias ?? 1,
-    metodosPago: Array.isArray(p.metodosPago) ? p.metodosPago : [],
-  }))
+  return proveedores.map(toCliente)
 }
 
 export async function createProvider(data: unknown) {
@@ -50,12 +59,13 @@ export async function createProvider(data: unknown) {
     return { error: "El RFC ya está registrado por otro proveedor" }
   }
 
+  const { metodosPago, ...datos } = parsed.data
   const proveedor = await prisma.proveedor.create({
-    data: parsed.data,
-    include: { _count: { select: { productos: true, ordenes: true } } },
+    data: { ...datos, metodosPago: metodosCreate(metodosPago) },
+    include: includeProveedor,
   })
   revalidatePath("/admin/proveedores")
-  return { data: JSON.parse(JSON.stringify(proveedor)) }
+  return { data: toCliente(proveedor) }
 }
 
 export async function updateProvider(id: number, data: unknown) {
@@ -82,13 +92,14 @@ export async function updateProvider(id: number, data: unknown) {
     return { error: "El RFC ya está registrado por otro proveedor" }
   }
 
+  const { metodosPago, ...datos } = parsed.data
   const proveedor = await prisma.proveedor.update({
     where: { id },
-    data: parsed.data,
-    include: { _count: { select: { productos: true, ordenes: true } } },
+    data: { ...datos, metodosPago: { deleteMany: {}, ...metodosCreate(metodosPago) } },
+    include: includeProveedor,
   })
   revalidatePath("/admin/proveedores")
-  return { data: JSON.parse(JSON.stringify(proveedor)) }
+  return { data: toCliente(proveedor) }
 }
 
 export async function deleteProvider(id: number) {

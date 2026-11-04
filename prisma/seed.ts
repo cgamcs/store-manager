@@ -166,8 +166,12 @@ async function seedProveedores() {
       cantidadMinimaOrden: p.cantidad_minima_orden,
       tiempoEntregaDias: p.tiempo_entrega_dias,
       plazoPago: p.plazo_pago,
-      metodosPago: p.metodos_pago,
     })),
+  })
+  await prisma.proveedorMetodoPago.createMany({
+    data: proveedores.flatMap((p) =>
+      p.metodos_pago.map((metodo) => ({ proveedorId: p.id, metodo }))
+    ),
   })
   console.log('  ✓ Proveedores')
 }
@@ -288,7 +292,6 @@ async function seedOrdenesCompra() {
       proveedorId: o.proveedor_id,
       usuarioId: o.usuario_id,
       fechaOrden: o.fecha_orden,
-      total: o.total,
     })),
   })
 
