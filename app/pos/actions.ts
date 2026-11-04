@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
 import { revalidatePath } from "next/cache"
+import { dbErrorMessage } from "@/lib/db-error"
 
 export type ProductoPOS = {
   id: number
@@ -79,26 +80,15 @@ export async function registrarVenta(
 
   try {
     const ventaId = await prisma.$transaction(async (tx) => {
-      // 1. Verificar stock suficiente
-      for (const item of items) {
-        const producto = await tx.producto.findUnique({
-          where: { id: item.productoId },
-          select: { stockActual: true, nombre: true },
-        })
-        if (!producto) throw new Error(`Producto ${item.productoId} no encontrado`)
-        if (producto.stockActual < item.cantidad) {
-          throw new Error(
-            `Stock insuficiente para "${producto.nombre}". Disponible: ${producto.stockActual}`
-          )
-        }
-      }
+      // El stock insuficiente lo rechaza trg_validar_stock_venta_detalle
+      // (BEFORE INSERT ON "VentaDetalle"); no se pre-valida en TS.
 
-      // 2. Crear Venta
+      // 1. Crear Venta
       const venta = await tx.venta.create({
         data: { cajeroId, total },
       })
 
-      // 3. Crear VentaDetalles y consumir lotes con lógica FEFO
+      // 2. Crear VentaDetalles y consumir lotes con lógica FEFO
       //
       // El stock del producto y el MovimientoInventario los maneja el trigger
       // trg_descontar_stock_venta (AFTER INSERT ON "VentaDetalle"). No los
@@ -141,9 +131,6 @@ export async function registrarVenta(
     revalidatePath("/pos")
     return { success: true, ventaId }
   } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Error al registrar la venta",
-    }
+    return { success: false, error: dbErrorMessage(error, "Error al registrar la venta") }
   }
 }

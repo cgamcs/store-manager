@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
 import { ordenSchema, updateEstadoSchema } from "@/lib/validations/orden"
 import { revalidatePath } from "next/cache"
+import { dbErrorMessage } from "@/lib/db-error"
 
 const ROL_ADMIN = 1
 
@@ -117,10 +118,10 @@ export async function updateOrdenEstado(id: number, data: unknown) {
 
   const { estado } = parsed.data
 
-  // Al pasar a "recibida", el trigger trg_recibir_orden_compra
-  // (AFTER UPDATE ON "OrdenCompra") suma las piezas al stock, registra el
-  // MovimientoInventario y crea el lote en FechaCaducidad. Aquí sólo se cambia
-  // el estado y se sincroniza el precio de compra, que el trigger no toca.
+  // Al pasar a "recibida", sp_procesar_orden_compra valida la orden (cursor)
+  // y su UPDATE dispara trg_recibir_orden_compra (AFTER UPDATE ON "OrdenCompra"),
+  // que suma stock, registra MovimientoInventario y crea el lote en
+  // FechaCaducidad. Aquí sólo se sincroniza el precio de compra, que el trigger no toca.
   if (estado === "recibida") {
     const ordenActual = await prisma.ordenCompra.findUnique({
       where: { id },
@@ -132,27 +133,40 @@ export async function updateOrdenEstado(id: number, data: unknown) {
       return { error: "La orden ya fue marcada como recibida" }
     }
 
-    await prisma.$transaction(async (tx) => {
-      await tx.ordenCompra.update({ where: { id }, data: { estado } })
+    try {
+      await prisma.$transaction(async (tx) => {
+        await tx.$executeRaw`CALL sp_procesar_orden_compra(${id}::int)`
 
-      for (const detalle of ordenActual.detalles) {
-        if (!detalle.precioCompra) continue
-
-        const producto = await tx.producto.findUnique({
-          where: { id: detalle.productoId },
-          select: { precioCompra: true },
+        // El procedimiento deja 'parcial' si hay detalles inválidos: se revierte.
+        const despues = await tx.ordenCompra.findUnique({
+          where: { id },
+          select: { estado: true },
         })
-        if (
-          producto &&
-          Number(producto.precioCompra) !== Number(detalle.precioCompra)
-        ) {
-          await tx.producto.update({
+        if (despues?.estado !== "recibida") {
+          throw new Error("La orden tiene detalles inválidos; no se recibió")
+        }
+
+        for (const detalle of ordenActual.detalles) {
+          if (
+            producto &&
+            Number(producto.precioCompra) !== Number(detalle.precioCompra)
+          ) {
+            await tx.producto.update({
+              where: { id: detalle.productoId },
+              data: { precioCompra: detalle.precioCompra },
+            })
+          }
+          if (!detalle.precioCompra) continue
+
+          const producto = await tx.producto.findUnique({
             where: { id: detalle.productoId },
-            data: { precioCompra: detalle.precioCompra },
+            select: { precioCompra: true },
           })
         }
-      }
-    })
+      })
+    } catch (e) {
+      return { error: dbErrorMessage(e, "No se pudo recibir la orden") }
+    }
   } else {
     await prisma.ordenCompra.update({ where: { id }, data: { estado } })
   }
