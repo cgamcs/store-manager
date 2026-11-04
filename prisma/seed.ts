@@ -196,7 +196,6 @@ async function seedProductos() {
 
 // ---------------------------------------------------------------------------
 // Descuentos + tabla de unión DescuentoProducto
-// Campos omitidos del mock: fecha_inicio, fecha_fin (no están en schema)
 // ---------------------------------------------------------------------------
 async function seedDescuentos() {
   await prisma.descuento.createMany({
@@ -205,6 +204,8 @@ async function seedDescuentos() {
       nombre: d.nombre,
       porcentaje: d.porcentaje,
       activo: d.activo,
+      fechaInicio: d.fecha_inicio,
+      fechaFin: d.fecha_fin,
     })),
   })
 
