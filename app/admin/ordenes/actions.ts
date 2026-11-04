@@ -74,30 +74,41 @@ export async function createOrden(data: unknown) {
   const usuarioId = parseInt(user.id ?? "0")
   if (!usuarioId) return { error: "No se pudo obtener el usuario" }
 
-  const orden = await prisma.ordenCompra.create({
-    data: {
-      proveedorId,
-      usuarioId,
-      estado: "pendiente",
-      detalles: {
-        create: detalles.map((d) => ({
-          productoId: d.productoId,
-          cantidad: d.cantidad,
-          unidad: d.unidad,
-          piezasPorUnidad: d.piezasPorUnidad ?? 1,
-          precioCompra: d.precioCompra,
-          precioVenta: d.precioVenta ?? null,
-          fechaCaducidad: d.fechaCaducidad ? new Date(d.fechaCaducidad) : null,
-        })),
-      },
-    },
-    include: {
-      proveedor: { select: { id: true, nombreComercial: true, correo: true } },
-      detalles: {
-        include: { producto: { select: { id: true, nombre: true } } },
-      },
-    },
-  })
+  // sp_validar_orden_compra revisa las líneas y el monto mínimo del proveedor;
+  // si lanza excepción la transacción se revierte y la orden no se guarda.
+  let orden
+  try {
+    orden = await prisma.$transaction(async (tx) => {
+      const creada = await tx.ordenCompra.create({
+        data: {
+          proveedorId,
+          usuarioId,
+          estado: "pendiente",
+          detalles: {
+            create: detalles.map((d) => ({
+              productoId: d.productoId,
+              cantidad: d.cantidad,
+              unidad: d.unidad,
+              piezasPorUnidad: d.piezasPorUnidad ?? 1,
+              precioCompra: d.precioCompra,
+              precioVenta: d.precioVenta ?? null,
+              fechaCaducidad: d.fechaCaducidad ? new Date(d.fechaCaducidad) : null,
+            })),
+          },
+        },
+        include: {
+          proveedor: { select: { id: true, nombreComercial: true, correo: true } },
+          detalles: {
+            include: { producto: { select: { id: true, nombre: true } } },
+          },
+        },
+      })
+      await tx.$executeRaw`CALL sp_validar_orden_compra(${creada.id}::int)`
+      return creada
+    })
+  } catch (e) {
+    return { error: dbErrorMessage(e, "No se pudo crear la orden") }
+  }
 
   revalidatePath("/admin/ordenes")
   return { data: JSON.parse(JSON.stringify(orden)) }
@@ -112,10 +123,10 @@ export async function updateOrdenEstado(id: number, data: unknown) {
 
   const { estado } = parsed.data
 
-  // Al pasar a "recibida", sp_procesar_orden_compra valida la orden (cursor)
-  // y su UPDATE dispara trg_recibir_orden_compra (AFTER UPDATE ON "OrdenCompra"),
-  // que suma stock, registra MovimientoInventario y crea el lote en
-  // FechaCaducidad. Aquí sólo se sincroniza el precio de compra, que el trigger no toca.
+  // Al pasar a "recibida", el UPDATE dispara trg_recibir_orden_compra
+  // (AFTER UPDATE ON "OrdenCompra"), que suma stock, registra MovimientoInventario
+  // y crea el lote en FechaCaducidad. La orden ya se validó al crearse
+  // (sp_validar_orden_compra). Aquí sólo se sincroniza el precio de compra.
   if (estado === "recibida") {
     const ordenActual = await prisma.ordenCompra.findUnique({
       where: { id },
@@ -129,16 +140,7 @@ export async function updateOrdenEstado(id: number, data: unknown) {
 
     try {
       await prisma.$transaction(async (tx) => {
-        await tx.$executeRaw`CALL sp_procesar_orden_compra(${id}::int)`
-
-        // El procedimiento deja 'parcial' si hay detalles inválidos: se revierte.
-        const despues = await tx.ordenCompra.findUnique({
-          where: { id },
-          select: { estado: true },
-        })
-        if (despues?.estado !== "recibida") {
-          throw new Error("La orden tiene detalles inválidos; no se recibió")
-        }
+        await tx.ordenCompra.update({ where: { id }, data: { estado } })
 
         for (const detalle of ordenActual.detalles) {
           if (!detalle.precioCompra) continue

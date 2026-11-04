@@ -146,8 +146,8 @@ async function verificarRecepcionDeOrden() {
     const p = await row<Producto>(`SELECT id, "proveedorId", "stockActual" FROM "Producto" LIMIT 1`)
     const u = await row<{ id: number }>(`SELECT id FROM "Usuario" LIMIT 1`)
     const o = await row<{ id: number }>(
-      `INSERT INTO "OrdenCompra" ("proveedorId","usuarioId",total,estado)
-       VALUES ($1,$2,4000,'pendiente') RETURNING id`, [p.proveedorId, u.id]
+      `INSERT INTO "OrdenCompra" ("proveedorId","usuarioId",estado)
+       VALUES ($1,$2,'pendiente') RETURNING id`, [p.proveedorId, u.id]
     )
     await c.query(
       `INSERT INTO "OrdenDetalle" ("ordenId","productoId",cantidad,"precioCompra","piezasPorUnidad")
@@ -173,59 +173,46 @@ async function verificarRecepcionDeOrden() {
 }
 
 async function verificarProcedimientos() {
-  console.log("\n### sp_procesar_orden_compra ###")
-  await c.query("BEGIN")
-  try {
-    const pr = await row<{ id: number; cantidadMinimaOrden: string }>(
-      `SELECT id, "cantidadMinimaOrden" FROM "Proveedor" ORDER BY "cantidadMinimaOrden" ASC LIMIT 1`
-    )
-    const p = await row<Producto>(`SELECT id, "stockActual" FROM "Producto" WHERE "proveedorId"=$1 LIMIT 1`, [pr.id])
-    const u = await row<{ id: number }>(`SELECT id FROM "Usuario" LIMIT 1`)
-
-    const o = await row<{ id: number }>(
-      `INSERT INTO "OrdenCompra" ("proveedorId","usuarioId",total,estado)
-       VALUES ($1,$2,4000,'pendiente') RETURNING id`, [pr.id, u.id]
-    )
-    await c.query(
-      `INSERT INTO "OrdenDetalle" ("ordenId","productoId",cantidad,"precioCompra","piezasPorUnidad","fechaCaducidad")
-       VALUES ($1,$2,100,40,1,CURRENT_DATE + 10)`, [o.id, p.id]
-    )
-    await c.query(`CALL sp_procesar_orden_compra(${o.id})`)
-
-    const est = await row<{ estado: string }>(`SELECT estado FROM "OrdenCompra" WHERE id=$1`, [o.id])
-    const st = await row<{ stockActual: number }>(`SELECT "stockActual" FROM "Producto" WHERE id=$1`, [p.id])
-    check(est.estado === "recibida", `la orden valida queda 'recibida' (quedo '${est.estado}')`)
-    check(st.stockActual === p.stockActual + 100, `el stock subio 100 via trigger (${p.stockActual} -> ${st.stockActual})`)
-  } finally {
-    await c.query("ROLLBACK")
+  console.log("\n### sp_validar_orden_compra ###")
+  // Crea una orden pendiente con una linea y la valida; devuelve el error o null.
+  async function validar(cantidad: number, precio: number, piezas = 1): Promise<string | null> {
+    await c.query("BEGIN")
+    try {
+      const pr = await row<{ id: number }>(`SELECT id FROM "Proveedor" ORDER BY "cantidadMinimaOrden" ASC LIMIT 1`)
+      const p = await row<Producto>(`SELECT id FROM "Producto" WHERE "proveedorId"=$1 LIMIT 1`, [pr.id])
+      const u = await row<{ id: number }>(`SELECT id FROM "Usuario" LIMIT 1`)
+      const o = await row<{ id: number }>(
+        `INSERT INTO "OrdenCompra" ("proveedorId","usuarioId",estado)
+         VALUES ($1,$2,'pendiente') RETURNING id`, [pr.id, u.id]
+      )
+      await c.query(
+        `INSERT INTO "OrdenDetalle" ("ordenId","productoId",cantidad,"precioCompra","piezasPorUnidad")
+         VALUES ($1,$2,$3,$4,$5)`, [o.id, p.id, cantidad, precio, piezas]
+      )
+      await c.query(`CALL sp_validar_orden_compra(${o.id})`)
+      const est = await row<{ estado: string }>(`SELECT estado FROM "OrdenCompra" WHERE id=$1`, [o.id])
+      check(est.estado === "pendiente", `validar no cambia el estado (quedo '${est.estado}')`)
+      return null
+    } catch (e) {
+      return (e as Error).message.split("\n")[0]
+    } finally {
+      await c.query("ROLLBACK")
+    }
   }
 
-  // Monto por debajo del minimo del proveedor
-  await c.query("BEGIN")
-  try {
-    const pr = await row<{ id: number }>(`SELECT id FROM "Proveedor" ORDER BY "cantidadMinimaOrden" ASC LIMIT 1`)
-    const p = await row<Producto>(`SELECT id FROM "Producto" WHERE "proveedorId"=$1 LIMIT 1`, [pr.id])
-    const u = await row<{ id: number }>(`SELECT id FROM "Usuario" LIMIT 1`)
-    const o = await row<{ id: number }>(
-      `INSERT INTO "OrdenCompra" ("proveedorId","usuarioId",total,estado)
-       VALUES ($1,$2,50,'pendiente') RETURNING id`, [pr.id, u.id]
-    )
-    await c.query(
-      `INSERT INTO "OrdenDetalle" ("ordenId","productoId",cantidad,"precioCompra","piezasPorUnidad")
-       VALUES ($1,$2,1,50,1)`, [o.id, p.id]
-    )
-    await c.query(`CALL sp_procesar_orden_compra(${o.id})`)
-    check(false, "deberia haber rechazado la orden por monto insuficiente")
-  } catch (e) {
-    check(true, `orden por debajo del minimo rechazada: ${(e as Error).message.split("\n")[0]}`)
-  } finally {
-    await c.query("ROLLBACK")
-  }
+  const ok = await validar(100, 40)
+  check(ok === null, `orden por encima del minimo aceptada${ok ? `: ${ok}` : ""}`)
+
+  const bajo = await validar(1, 1)
+  check(bajo?.includes("menor al mínimo") ?? false, `orden por debajo del minimo rechazada: ${bajo}`)
+
+  const mala = await validar(100, 40, 0)
+  check(mala !== null, `linea con piezas invalidas rechazada: ${mala}`)
 
   console.log("\n### sp_reporte_caducidades_proximas ###")
-  await c.query(`CALL sp_reporte_caducidades_proximas(30)`)
+  await c.query(`CALL sp_reporte_caducidades_proximas(30, NULL, NULL, NULL, NULL)`)
   try {
-    await c.query(`CALL sp_reporte_caducidades_proximas(0)`)
+    await c.query(`CALL sp_reporte_caducidades_proximas(0, NULL, NULL, NULL, NULL)`)
     check(false, "deberia rechazar p_dias = 0")
   } catch {
     check(true, "rechaza p_dias fuera de rango")
