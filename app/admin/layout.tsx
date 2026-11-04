@@ -17,6 +17,7 @@ import {
   Menu,
   Receipt,
   ListOrdered,
+  FileBarChart,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { LogoutButton } from "@/components/logout-button"
@@ -26,6 +27,7 @@ const navItems = [
   { href: "/admin/ventas", label: "Historial de Ventas", icon: Receipt },
   { href: "/admin/movimientos", label: "Movimientos", icon: ListOrdered },
   { href: "/admin/ordenes", label: "Órdenes de Compra", icon: ClipboardList },
+  { href: "/admin/reportes", label: "Reportes", icon: FileBarChart },
   { href: "/admin/descuentos", label: "Descuentos", icon: Tags },
   { href: "/admin/proveedores", label: "Proveedores", icon: Truck },
   { href: "/admin/productos", label: "Productos", icon: Package },
