@@ -61,6 +61,9 @@ type StockBajoRaw = {
   stockActual: number
   stockMinimo: number
   deficit_stock: number
+  proveedor_nombre: string
+  categoria_nombre: string
+  dias_entrega: number
 }
 
 export default async function DashboardPage() {
@@ -122,7 +125,8 @@ export default async function DashboardPage() {
     `,
     // vista_productos_stock_bajo ya resuelve el filtro y el orden por déficit
     prisma.$queryRaw<StockBajoRaw[]>`
-      SELECT producto_id, producto_nombre, "stockActual", "stockMinimo", deficit_stock
+      SELECT producto_id, producto_nombre, "stockActual", "stockMinimo", deficit_stock,
+             proveedor_nombre, categoria_nombre, dias_entrega
       FROM vista_productos_stock_bajo
     `,
     prisma.descuento.findMany({
@@ -281,7 +285,12 @@ export default async function DashboardPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-foreground truncate">{product.producto_nombre}</p>
-                      <p className="text-sm text-muted-foreground">Mínimo: {product.stockMinimo}</p>
+                      <p className="text-sm text-muted-foreground truncate">
+                        {product.proveedor_nombre} · {product.categoria_nombre}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Mínimo: {product.stockMinimo} · Entrega en {product.dias_entrega} días
+                      </p>
                     </div>
                     <div className="text-right">
                       <p className="font-bold text-[oklch(0.6_0.15_75)]">{product.stockActual}</p>
