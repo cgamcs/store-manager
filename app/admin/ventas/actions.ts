@@ -2,6 +2,8 @@
 
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
+import { revalidatePath } from "next/cache"
+import { dbErrorMessage } from "@/lib/db-error"
 import { Prisma } from "@/src/generated/prisma/client"
 
 const ROL_ADMIN = 1
@@ -90,4 +92,21 @@ export async function getRendimientoCajeros(): Promise<RendimientoCajero[]> {
     ventasPorDiaPromedio: Number(f.ventas_por_dia_promedio),
     ranking: Number(f.ranking_ingresos),
   }))
+}
+
+export async function cancelarVenta(id: number) {
+  await requireAdmin()
+  try {
+    await prisma.$transaction(async (tx) => {
+      const venta = await tx.venta.findUnique({ where: { id }, select: { id: true } })
+      if (!venta) throw new Error("Venta no encontrada")
+      // trg_restaurar_stock_venta_delete restaura el stock por cada fila borrada
+      await tx.ventaDetalle.deleteMany({ where: { ventaId: id } })
+      await tx.venta.delete({ where: { id } })
+    })
+  } catch (e) {
+    return { error: dbErrorMessage(e, "No se pudo cancelar la venta") }
+  }
+  revalidatePath("/admin/ventas")
+  return { ok: true as const }
 }

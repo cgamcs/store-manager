@@ -20,14 +20,15 @@ import {
   FileBarChart,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Toaster } from "@/components/ui/sonner"
 import { LogoutButton } from "@/components/logout-button"
 
 const navItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/ventas", label: "Historial de Ventas", icon: Receipt },
   { href: "/admin/movimientos", label: "Movimientos", icon: ListOrdered },
-  { href: "/admin/ordenes", label: "Órdenes de Compra", icon: ClipboardList },
   { href: "/admin/reportes", label: "Reportes", icon: FileBarChart },
+  { href: "/admin/ordenes", label: "Órdenes de Compra", icon: ClipboardList },
   { href: "/admin/descuentos", label: "Descuentos", icon: Tags },
   { href: "/admin/proveedores", label: "Proveedores", icon: Truck },
   { href: "/admin/productos", label: "Productos", icon: Package },
@@ -175,6 +176,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <main className="flex-1 overflow-y-auto p-6">
           {children}
         </main>
+        <Toaster />
       </div>
     </div>
   )

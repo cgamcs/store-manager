@@ -1,7 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
+import { toast } from "sonner"
+import { cancelarVenta } from "./actions"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DataTable } from "@/components/ui/data-table"
 import {
@@ -15,6 +18,16 @@ import {
 import type { ColumnDef } from "@tanstack/react-table"
 import type { RendimientoCajero } from "./actions"
 import { money } from "@/lib/utils"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import {
   Sheet,
   SheetContent,
@@ -32,6 +45,7 @@ import {
   Clock,
   Filter,
   Award,
+  Trash2,
 } from "lucide-react"
 
 type VentaDetalleDB = {
@@ -68,12 +82,15 @@ function startOfMonth(date: Date): Date {
 }
 
 export default function VentasClient({
-  initialVentas,
+  initialVentas: ventasInicial,
   rendimiento,
 }: {
   initialVentas: VentaDB[]
   rendimiento: RendimientoCajero[]
 }) {
+  const [initialVentas, setVentas] = useState(ventasInicial)
+  const [ventaCancelar, setVentaCancelar] = useState<VentaDB | null>(null)
+  const [isPending, startTransition] = useTransition()
   const [searchQuery, setSearchQuery] = useState("")
   const [dateFrom, setDateFrom]       = useState("")
   const [dateTo, setDateTo]           = useState("")
@@ -105,6 +122,18 @@ export default function VentasClient({
   const openResumen = (venta: VentaDB) => {
     setResumenVenta(venta)
     setIsResumenOpen(true)
+  }
+
+  const handleCancelar = () => {
+    if (!ventaCancelar) return
+    const id = ventaCancelar.id
+    startTransition(async () => {
+      const result = await cancelarVenta(id)
+      if ("error" in result) { toast.error(result.error); return }
+      setVentas((prev) => prev.filter((v) => v.id !== id))
+      setVentaCancelar(null)
+      toast.success("Venta cancelada; stock restaurado")
+    })
   }
 
   const columns: ColumnDef<VentaDB>[] = [
@@ -168,6 +197,23 @@ export default function VentasClient({
         <span className="block text-right font-bold text-foreground">
           ${toNum(row.original.total).toFixed(2)}
         </span>
+      ),
+    },
+    {
+      id: "acciones",
+      header: () => <span className="block text-right">Acciones</span>,
+      cell: ({ row }) => (
+        <div className="flex justify-end">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setVentaCancelar(row.original)}
+            className="rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+          >
+            <Trash2 className="w-4 h-4 mr-1" />
+            Cancelar venta
+          </Button>
+        </div>
       ),
     },
   ]
@@ -356,6 +402,28 @@ export default function VentasClient({
           <DataTable columns={columns} data={filteredVentas} pageSize={15} />
         </CardContent>
       </Card>
+
+      <AlertDialog open={!!ventaCancelar} onOpenChange={(o) => !o && setVentaCancelar(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-destructive">Cancelar venta</AlertDialogTitle>
+            <AlertDialogDescription>
+              Se eliminará la venta #{ventaCancelar?.id.toString().padStart(4, "0")} y se
+              restaurará el stock de sus productos. Esta acción no se puede deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Volver</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); handleCancelar() }}
+              disabled={isPending}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {isPending ? "Cancelando..." : "Cancelar venta"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Resumen Sheet */}
       <Sheet open={isResumenOpen} onOpenChange={setIsResumenOpen}>
