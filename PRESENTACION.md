@@ -55,7 +55,7 @@ Usuario (navegador)
 
 - **Hosting:** Vercel — build automático en cada push a `main`
 - **Base de datos:** Neon — PostgreSQL serverless con conexión vía pool (`@prisma/adapter-pg`)
-- **Email:** Mailtrap — sandbox SMTP para verificación de correos y recuperación de contraseña
+- **Email:** SMTP de Gmail (cuenta dedicada con contraseña de aplicación) — verificación de correos y recuperación de contraseña
 - **No hay servidor propio** — todo es serverless (funciones y base de datos)
 
 ### Variables de entorno requeridas
@@ -63,10 +63,9 @@ Usuario (navegador)
 ```env
 DATABASE_URL=postgresql://...      # Cadena de conexión Neon
 AUTH_SECRET=...                    # Secret JWT de NextAuth (mín. 32 chars, base64)
-MAILTRAP_HOST=sandbox.smtp.mailtrap.io
-MAILTRAP_PORT=2525
-MAILTRAP_USER=...
-MAILTRAP_PASS=...
+SMTP_USER=cuenta@gmail.com        # Cuenta de Gmail que envía los correos
+SMTP_PASS=...                      # Contraseña de aplicación de Google (16 caracteres)
+APP_URL=https://...                # URL pública, para el enlace a /verificar (default http://localhost:3000)
 ```
 
 ---
@@ -251,11 +250,15 @@ Usuario ingresa correo + contraseña
           │
     Verifica correoVerificado === true
           │
-    bcryptjs.compare(password, hash)
+    Cajero: verifica perfil activo
           │
     Genera JWT con { id, rolId, rememberMe }
           │
+    bcryptjs.compare(password, hash)
+          │
     proxy.ts evalúa ruta solicitada
+    (si no: error "verifica tu correo" y,
+     si el código expiró, reenvía el correo)
           │
     ┌─────┴──────────────────────────────────┐
     │                                        │
@@ -295,6 +298,8 @@ Registro → Token 6 dígitos (expira 5 min) → Email → /verificar → cuenta
 ```
 /recuperar → ingresa correo → token 6 dígitos por email → /cambiar-password → nueva contraseña
 ```
+
+Las cuentas que crea el administrador desde `/admin/usuarios` se guardan ya verificadas.
 
 ### Seguridad en datos
 
@@ -478,7 +483,7 @@ El sistema envía correos en dos situaciones:
 Nuevo usuario se registra
     → Se genera token numérico de 6 dígitos
     → Expira en 5 minutos
-    → Se envía al correo del usuario
+    → Se envía al correo del usuario (código + enlace a /verificar)
     → Usuario ingresa el token en /verificar
     → correoVerificado se marca como true
 ```
@@ -489,13 +494,15 @@ Nuevo usuario se registra
 Usuario solicita recuperación en /recuperar
     → Se genera token de 6 dígitos
     → Expira en 5 minutos
+Si el usuario no verificó a tiempo e intenta iniciar sesión, el login se rechaza con un mensaje que pide verificar el correo y, si el código anterior ya expiró, se envía uno nuevo automáticamente.
+
     → Se envía al correo
     → Usuario ingresa token en /cambiar-password
     → Ingresa nueva contraseña (mín. 6 caracteres)
     → Token se elimina de la BD
 ```
 
-Los correos se envían usando **Nodemailer** con **Mailtrap** como servidor SMTP sandbox (entorno de desarrollo/pruebas).
+Los correos se envían usando **Nodemailer** con el **SMTP de Gmail**, desde una cuenta dedicada que se autentica con una contraseña de aplicación (límite aproximado de 500 correos por día).
 
 ---
 

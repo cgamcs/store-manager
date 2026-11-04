@@ -25,12 +25,17 @@ export default function LoginPage() {
     setError(null)
 
     try {
-      await signIn("credentials", {
+      const result = await signIn("credentials", {
         correo: email,
         contrasena: password,
         redirect: false,
         rememberMe: rememberMe ? "true" : "false",
       })
+      if (result?.code === "email_not_verified") {
+        setError("Debes verificar tu correo antes de iniciar sesión. Te enviamos un correo con el enlace para verificar tu cuenta.")
+        setIsLoading(false)
+        return
+      }
     } catch {
       // NextAuth v5 lanza excepción en credenciales inválidas
     }

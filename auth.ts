@@ -1,9 +1,14 @@
-import NextAuth from "next-auth"
+import NextAuth, { CredentialsSignin } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { authConfig } from "@/auth.config"
+import { resendVerificationEmail } from "@/app/lib/actions/verify"
+
+class EmailNotVerified extends CredentialsSignin {
+  code = "email_not_verified"
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -42,6 +47,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!passwordMatch) {
           console.error("[auth] Contraseña incorrecta para:", credentials.correo)
           return null
+        }
+
+        if (!usuario.correoVerificado) {
+          // Only resend once the previous code expired, so repeated logins don't spam the inbox
+          const tokenVigente = await prisma.token.findFirst({
+            where: { usuarioId: usuario.id, expira: { gt: new Date() } },
+            select: { id: true },
+          })
+          if (!tokenVigente) await resendVerificationEmail(usuario.correo)
+          throw new EmailNotVerified()
         }
 
         const ROL_ADMIN = 1

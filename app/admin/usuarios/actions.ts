@@ -63,6 +63,8 @@ export async function createCajero(data: unknown) {
         correo,
         contrasena: hashedPassword,
         rolId: ROL_CAJERO,
+        // Accounts created by the admin are trusted and have no verification flow
+        correoVerificado: true,
       },
     })
     usuarioId = newUser.id

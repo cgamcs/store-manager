@@ -112,6 +112,7 @@ async function seedUsuarios() {
       nombre: u.nombre,
       correo: u.correo,
       contrasena: HASH_DEV,
+      correoVerificado: true,
     })),
   })
   console.log('  ✓ Usuarios')
