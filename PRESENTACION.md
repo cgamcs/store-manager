@@ -241,6 +241,57 @@ id, token (unique), usuarioId, expira
 ```
 Tokens de verificación de email y recuperación de contraseña.
 
+### Vistas, triggers y procedimientos
+
+Los objetos se definen en `prisma/migrations/`. Cuando un objeto se redefine en una migración posterior, la versión vigente es la más reciente. Las rutas abreviadas son:
+
+- **M1** = `20261011000000_db_objects/migration.sql`
+- **M2** = `20261012000000_fix_db_objects/migration.sql`
+- **M3** = `20261013000000_reporte_caducidades_out/migration.sql`
+- **M5** = `20261104000000_validar_orden_compra/migration.sql`
+
+#### Vistas
+
+| Vista | Definición | Se consulta en | Dónde se ve |
+|---|---|---|---|
+| `vista_ventas_por_categoria` | M1:11 | `app/admin/dashboard/page.tsx` | `/admin/dashboard`, tarjeta "Categorías Más Rentables" |
+| `vista_productos_stock_bajo` | M2:30 | `app/admin/dashboard/page.tsx` | `/admin/dashboard`, tarjeta "Productos con Stock Bajo" (proveedor, categoría y días de entrega) |
+| `vista_rendimiento_cajeros` | M2:66 | `app/admin/ventas/actions.ts` | `/admin/ventas`, tarjeta "Rendimiento de Cajeros" |
+
+#### Triggers
+
+El efecto de los triggers se verifica en el stock del producto y en `/admin/movimientos` (columna de motivo).
+
+| Trigger | Definición | Se dispara desde | Cómo se ve en la app |
+|---|---|---|---|
+| `trg_validar_stock_venta_detalle` (BEFORE INSERT en `VentaDetalle`) | M1:137 | `app/pos/actions.ts` | En `/pos`, cobrar más piezas de las disponibles muestra el error del trigger y la venta no se registra |
+| `trg_descontar_stock_venta` (AFTER INSERT en `VentaDetalle`) | M1:165 | `app/pos/actions.ts` | Al cobrar en `/pos` baja el stock y aparece un movimiento de tipo venta |
+| `trg_restaurar_stock_venta_delete` (AFTER DELETE en `VentaDetalle`) | M1:225 | `app/admin/ventas/actions.ts` | En `/admin/ventas`, el botón "Cancelar venta" devuelve el stock y registra un movimiento de ajuste |
+| `trg_recibir_orden_compra` (AFTER UPDATE en `OrdenCompra`) | M2:152 | `updateOrdenEstado` en `app/admin/ordenes/actions.ts` | En `/admin/ordenes`, marcar una orden como "recibida" suma el stock, registra un movimiento de compra y crea el lote de caducidad |
+
+#### Procedimientos almacenados
+
+| Procedimiento | Definición | Se llama en | Dónde se ve |
+|---|---|---|---|
+| `sp_validar_orden_compra` | M5:21 | `createOrden` en `app/admin/ordenes/actions.ts` | `/admin/ordenes`, formulario "Nueva orden": si no se alcanza el mínimo del proveedor, el error aparece ahí y la orden no se guarda |
+| `sp_reporte_caducidades_proximas` | M3:12 | `app/admin/reportes/actions.ts` | `/admin/reportes`, tarjeta "Reporte de caducidades" |
+| `sp_calcular_estadisticas_inventario` | M1:444 | `app/admin/reportes/actions.ts` | `/admin/reportes`, tarjetas de estadísticas |
+
+**`sp_validar_orden_compra`** valida la orden en el momento de crearla, porque el monto mínimo del proveedor es una condición para hacer el pedido, no para recibirlo: si la mercancía ya llegó, el proveedor aceptó el monto. `createOrden` inserta la orden y llama al procedimiento dentro de la misma transacción. Con un cursor recorre los detalles y suma el monto (`cantidad × piezasPorUnidad × precioCompra`). Si el total es menor que `cantidadMinimaOrden`, lanza una excepción, la transacción se revierte y la orden no se guarda. El procedimiento también rechaza líneas con cantidad o piezas por unidad menores o iguales a 0. Desde la app esto no ocurre, porque Zod las filtra antes; la validación protege a la base de inserciones hechas por fuera de la aplicación.
+
+Recibir una orden ya no pasa por ningún procedimiento: `updateOrdenEstado` cambia el estado a "recibida" y ese `UPDATE` dispara `trg_recibir_orden_compra`. Antes la validación del mínimo ocurría al recibir, lo que podía impedir registrar mercancía que ya estaba en la tienda. Con el cambio desapareció el estado `parcial`, porque una orden inválida ya no se guarda.
+
+**`sp_reporte_caducidades_proximas(p_dias)`** responde la pregunta "¿qué lotes caducan en los próximos N días?". Con un cursor recorre los lotes de `FechaCaducidad` cuya fecha no supera hoy + N días y clasifica cada uno:
+
+| Nivel | Condición |
+|---|---|
+| `caducado` | La fecha ya pasó |
+| `urgente` | Caduca en 7 días o menos |
+| `proximo` | Caduca en 8 a 15 días |
+| `vigilancia` | Caduca en más de 15 días, dentro del rango pedido |
+
+Devuelve como parámetros OUT el total de alertas, los lotes ya caducados, las unidades en riesgo y el detalle de cada lote. Marca "Sugerir descuento" cuando el stock total del producto es mayor que la cantidad del lote. Un valor de días fuera de 1–365 lanza una excepción que se muestra en pantalla.
+
 ---
 
 ## Autenticación y seguridad
@@ -361,7 +412,9 @@ pendiente → enviada → recibida
                   ↘ cancelada
 ```
 
-**Al marcar como "recibida"** (lógica especial):
+**Al crear la orden**, `sp_validar_orden_compra` verifica que el monto alcance el mínimo del proveedor; si no lo alcanza, la orden no se guarda.
+
+**Al marcar como "recibida"** (lógica especial, a cargo de `trg_recibir_orden_compra`):
 1. Incrementa `stockActual` del producto
 2. Actualiza `precioCompra` si cambió
 3. Crea registros `FechaCaducidad` si se proporcionó fecha
