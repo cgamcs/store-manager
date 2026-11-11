@@ -23,3 +23,5 @@ node_modules
 CLAUDE.md
 .claude/
 .agents/
+# Local docs
+docs/erd/
